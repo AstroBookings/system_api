@@ -1,7 +1,28 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
 import { Role } from "./role.type";
-export type UserDocument = HydratedDocument<User>;
+
+@Entity({ collection: 'users' })
+export class User {
+    @PrimaryKey()
+    _id: string;
+
+    @Property()
+    id: string;
+
+    @Property()
+    name: string;
+    @Property({unique: true})
+    email: string;
+    @Property({fieldName: 'password_hash'})
+    passwordHash: string;
+
+    @Property({type: 'text'})
+    role: Role;
+}
+
+
+
+/* export type UserDocument = HydratedDocument<User>;
 @Schema()
 export class User {
     @Prop()
@@ -15,7 +36,7 @@ export class User {
     @Prop()
     role: Role;
 }
-export const UserSchema = SchemaFactory.createForClass(User);
+export const UserSchema = SchemaFactory.createForClass(User); */
 
 
 /* export const UserSchema = new mongoose.Schema({

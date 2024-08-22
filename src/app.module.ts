@@ -1,12 +1,19 @@
+import { MongoDriver } from '@mikro-orm/mongodb';
+import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
-import { MongooseModule } from '@nestjs/mongoose';
+import { User } from './authentication/models/user.entity';
 import { AuthenticationModule } from './authentication/authentication.module';
-
 
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://localhost:27017/SystemDB'),
-     AuthenticationModule
-    ],
+    MikroOrmModule.forRoot({
+      entities: [User],
+      dbName: 'SystemDB',
+      clientUrl: 'mongodb://localhost:27017',
+      debug: true,
+      driver: MongoDriver,
+    }),
+    AuthenticationModule,
+  ],
 })
 export class AppModule {}

@@ -36,6 +36,7 @@ export class AuthenticationController {
 
     @Post('register')
     async register(@Body() registerDto: RegisterDto): Promise<UserTokenDto> {
+      console.log('🤖 controller entering register', registerDto);
         return this.authenticationService.register(registerDto);
     }
 
