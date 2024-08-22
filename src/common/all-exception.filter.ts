@@ -1,12 +1,12 @@
 import {
-  Catch,
-  HttpException,
-  ExceptionFilter,
-  Logger,
   ArgumentsHost,
+  Catch,
+  ExceptionFilter,
+  HttpException,
   HttpStatus,
+  Logger,
 } from '@nestjs/common';
-import { EntityNotFoundError, QueryFailedError, TypeORMError } from 'typeorm';
+
 import { Request, Response } from 'express';
 
 //import { nodeEnv } from '@common/constant/constant';
@@ -27,8 +27,8 @@ const errorMessages = {
   },
 };
 
-@Catch(HttpException, TypeORMError)
-export class AllExceptionFilter<T extends HttpException | TypeORMError>
+@Catch(HttpException)
+export class AllExceptionFilter<T extends HttpException >
   implements ExceptionFilter
 {
   private readonly logger = new Logger();
@@ -36,11 +36,12 @@ export class AllExceptionFilter<T extends HttpException | TypeORMError>
   #getStatus(exception: T): number {
     if (exception instanceof HttpException) {
       return exception.getStatus();
-    } else if (exception instanceof EntityNotFoundError) {
+    } 
+    /* else if (exception instanceof EntityNotFoundError) {
       return HttpStatus.NOT_FOUND;
     } else if (exception instanceof TypeORMError) {
       return HttpStatus.BAD_REQUEST;
-    }
+    } */
     return HttpStatus.INTERNAL_SERVER_ERROR;
   }
 

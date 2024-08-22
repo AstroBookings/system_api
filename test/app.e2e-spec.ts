@@ -35,7 +35,7 @@ describe('AppController (e2e)', () => {
         const url = `/authentication/${createdUserId}`;
         console.log(url);
         await request(app.getHttpServer())
-          .get(url)
+          .delete(url)
           .expect(200);
       }
     });

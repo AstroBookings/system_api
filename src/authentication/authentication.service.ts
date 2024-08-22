@@ -1,9 +1,9 @@
 import { ConflictException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectModel } from '@nestjs/mongoose';
 import * as crypto from 'crypto';
+import { Model } from 'mongoose';
 import { Epoch, Snowyflake } from 'snowyflake';
-import { Repository } from 'typeorm';
 import { RegisterDto } from './models/register.dto';
 import { UserTokenDto } from './models/user-token.dto';
 import { UserDto } from './models/user.dto';
@@ -19,7 +19,8 @@ export class AuthenticationService {
     
     constructor(
         private readonly jwtService: JwtService,
-        @InjectRepository(User) private readonly userRepository: Repository<User>
+        @InjectModel('User') private readonly userRepository: Model<User>
+
     ) { }
 
     async register(registerDto: RegisterDto): Promise<UserTokenDto> {
@@ -35,16 +36,16 @@ export class AuthenticationService {
             id: this.snowyflake.nextId().toString(),
             name: registerDto.name,
             email: registerDto.email,
-            passwordHash: passwordHash,
+            password_hash: passwordHash,
             role: registerDto.role
         };
         console.log('newLocal', newLocal);
-        const newUser = this.userRepository.create(newLocal);
+        const newUser = await this.userRepository.create(newLocal);
 
         // Save the new user to the database
         this.logger.log('newUser', newUser);
         try {
-            const savedUser: User = await this.userRepository.save(newUser);
+            const savedUser: User = await newUser.save();
             const user: UserDto = {
                 id: savedUser.id,
                 name: savedUser.name,
@@ -72,7 +73,7 @@ export class AuthenticationService {
      */
     async getById(id: string): Promise<UserDto | null> {
 
-        const user = await this.userRepository.findOneByOrFail({ id });
+        const user = await this.userRepository.findOne({ id: id});
 
         if (!user) {
             console.log('👽 user not found', id);
@@ -95,7 +96,7 @@ export class AuthenticationService {
     async deleteUser(id: string): Promise<void> {
         console.log('🤖 entering deleting user', id);
         // Find the user by ID
-        const user = await this.userRepository.findOneBy({ id :id});
+        const user = await this.userRepository.findOne({ id :id});
 
         // If user not found, throw NotFoundException
         if (!user) {
@@ -104,7 +105,7 @@ export class AuthenticationService {
         }
         console.log('🤖 deleting user', id);
         // Delete the user
-        await this.userRepository.remove(user);
+        await user.deleteOne();
         console.log('🤖 user deleted', id);
         this.logger.log(`User with ID ${id} has been deleted`);
     }

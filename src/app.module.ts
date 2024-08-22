@@ -1,15 +1,12 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { MongooseModule } from '@nestjs/mongoose';
 import { AuthenticationModule } from './authentication/authentication.module';
-import { User } from './authentication/models/user.entity';
 
 
 @Module({
-  imports: [TypeOrmModule.forRoot({
-    type: 'mongodb',
-    url: 'mongodb://localhost:27017',
-    database: 'SystemDB',
-    entities: [User],
-  }), AuthenticationModule],
+  imports: [
+    MongooseModule.forRoot('mongodb://localhost:27017/SystemDB'),
+     AuthenticationModule
+    ],
 })
 export class AppModule {}
