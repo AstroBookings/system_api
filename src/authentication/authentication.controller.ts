@@ -24,15 +24,20 @@ export class AuthenticationController {
   }
 
   /**
-   * Deletes a user by their ID.
-   * @param id - The ID of the user to delete.
-   * @returns A promise that resolves to void when the user is successfully deleted.
+   * Deletes a user by their email.
+   * @param email - The email of the user to delete.
+   * @returns A promise that resolves always to void.
    */
-  @Delete(':id')
-  async deleteUser(@Param('id') id: string): Promise<void> {
-    return this.authenticationService.deleteUser(id);
+  @Delete(':email')
+  async deleteUser(@Param('email') email: string): Promise<void> {
+    return this.authenticationService.deleteUserByEmail(email);
   }
 
+  /**
+   * Retrieves a user by their ID.
+   * @param id - The ID of the user to retrieve.
+   * @returns A promise that resolves to the UserDto if found
+   */
   @Get(':id')
   async getUser(@Param('id') id: string): Promise<UserDto> {
     console.log('geting user', id);

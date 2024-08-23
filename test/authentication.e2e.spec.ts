@@ -3,12 +3,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 
-const inputRegisterUser = {
-  name: 'John Doe',
-  email: 'john.doe@example.com',
-  password: 'password123',
-  role: 'traveler',
-};
 describe('Authentication Controller (e2e)', () => {
   let app: INestApplication;
   let endPoint: string = '/authentication';
@@ -22,24 +16,36 @@ describe('Authentication Controller (e2e)', () => {
     await app.init();
   });
 
-  describe('Register', () => {
-    let createdUserId: string;
-
-    // ToDo: Clean up the database before running the test (need delete by email)
-
-    it('should register a new user', async () => {
-      const response = await request(app.getHttpServer())
-        .post(`${endPoint}/register`)
-        .send(inputRegisterUser)
-        .expect(201);
-      createdUserId = response.body.user.id;
+  describe('Register a new user', () => {
+    const inputRegisterUser = {
+      name: 'John Doe',
+      email: 'john.doe@example.com',
+      password: 'password123',
+      role: 'traveler',
+    };
+    beforeEach(async () => {
+      await request(app.getHttpServer())
+        .delete(`${endPoint}/${inputRegisterUser.email}`)
+        .expect(200);
     });
 
-    afterEach(async () => {
-      if (createdUserId) {
-        const url = `${endPoint}/${createdUserId}`;
-        await request(app.getHttpServer()).delete(url).expect(200);
-      }
+    it('should return 201 and a token if user is created', async () => {
+      await request(app.getHttpServer())
+        .post(`${endPoint}/register`)
+        .send(inputRegisterUser)
+        .expect(201)
+        .expect((response) => {
+          expect(response.body.token).toBeDefined();
+        });
+    });
+    it('should return 409 if user already exists', async () => {
+      await request(app.getHttpServer())
+        .post(`${endPoint}/register`)
+        .send(inputRegisterUser);
+      await request(app.getHttpServer())
+        .post(`${endPoint}/register`)
+        .send(inputRegisterUser)
+        .expect(409);
     });
   });
 });

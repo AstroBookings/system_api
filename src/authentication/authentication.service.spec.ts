@@ -1,7 +1,10 @@
-import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+
+import { EntityRepository } from '@mikro-orm/core';
+import { getRepositoryToken } from '@mikro-orm/nestjs';
+import { HashService } from '../shared/hash-service';
+import { IdService } from '../shared/id-service';
+import { TokenService } from '../shared/token-service';
 import { AuthenticationService } from './authentication.service';
 import { RegisterDto } from './models/register.dto';
 import { UserTokenDto } from './models/user-token.dto';
@@ -9,25 +12,26 @@ import { User } from './models/user.entity';
 
 describe('AuthenticationService', () => {
   let service: AuthenticationService;
-  let mockUserRepository: Partial<Repository<User>>;
-  let mockJwtService: Partial<JwtService>;
+  let mockUserRepository: Partial<EntityRepository<User>>;
+  let mockTokenService: Partial<TokenService>;
+  let mockHashService: Partial<HashService>;
+  let mockIdService: Partial<IdService>;
 
   beforeEach(async () => {
     mockUserRepository = {
-      findOne: jest.fn(() => null),
-      create: jest.fn().mockImplementation((dto: RegisterDto) => ({
-        id: 1,
-        name: dto.name,
-        email: dto.email,
-        passwordHash: 'hashedPassword',
-        role: dto.role
-      })),
-      save: jest.fn().mockImplementation((user: User) => Promise.resolve(user)),
+      findOne: jest.fn(),
+      insert: jest.fn(),
     };
-    mockJwtService = {
-      sign: jest.fn().mockReturnValue('mocked_token'),
+    mockTokenService = {
+      generateToken: jest.fn(() => 'mocked_token'),
     };
-    
+    mockHashService = {
+      hashText: jest.fn(() => ''),
+    };
+    mockIdService = {
+      generateId: jest.fn(() => '1'),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         {
@@ -35,8 +39,16 @@ describe('AuthenticationService', () => {
           useValue: mockUserRepository,
         },
         {
-          provide: JwtService,
-          useValue: mockJwtService,
+          provide: TokenService,
+          useValue: mockTokenService,
+        },
+        {
+          provide: HashService,
+          useValue: mockHashService,
+        },
+        {
+          provide: IdService,
+          useValue: mockIdService,
         },
         AuthenticationService,
       ],
@@ -46,34 +58,35 @@ describe('AuthenticationService', () => {
   });
 
   it('should register a user', async () => {
+    // Arrange
     const input_registerDto: RegisterDto = {
       name: 'Test User',
       email: 'test@example.com',
       password: 'password',
-      role: 'agency'
+      role: 'agency',
     };
-
     const expected_result: UserTokenDto = {
       user: {
         id: '1',
         name: input_registerDto.name,
         email: input_registerDto.email,
-        role: input_registerDto.role
+        role: input_registerDto.role,
       },
-      token: 'mocked_token'
+      token: 'mocked_token',
     };
 
-    const actual_result: UserTokenDto = await service.register(input_registerDto);
+    // Act
+    const actual_result: UserTokenDto =
+      await service.register(input_registerDto);
 
-    expect(mockUserRepository.create).toHaveBeenCalled();
-    expect(mockUserRepository.save).toHaveBeenCalled();
-    expect(mockJwtService.sign).toHaveBeenCalledWith({ 
-      sub: expected_result.user.id.toString(), 
-      email: expected_result.user.email, 
-      name: expected_result.user.name, 
-      role: expected_result.user.role 
+    // Assert
+    expect(mockUserRepository.findOne).toHaveBeenCalledWith({
+      email: input_registerDto.email,
     });
-
+    expect(mockUserRepository.insert).toHaveBeenCalled();
+    expect(mockTokenService.generateToken).toHaveBeenCalledWith(
+      expected_result.user,
+    );
     expect(actual_result).toEqual(expected_result);
   });
 });

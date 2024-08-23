@@ -36,14 +36,12 @@ export class AuthenticationService {
   ) {}
 
   async register(registerDto: RegisterDto): Promise<UserTokenDto> {
-    // Check if user with the same email already exists
     const existingUser = await this.userRepository.findOne({
       email: registerDto.email,
     });
     if (existingUser) {
       throw new ConflictException('Email already in use');
     }
-    // Create a new user entity from the DTO
     const id = this.idService.generateId();
     const passwordHash = this.hashService.hashText(registerDto.password);
     const userEntity: UserEntity = {
@@ -53,13 +51,11 @@ export class AuthenticationService {
       passwordHash: passwordHash,
       role: registerDto.role,
     };
-    // Insert the user entity into the database
     await this.userRepository.insert(userEntity);
     const user: UserDto = this.#mapToDto(userEntity);
-    // Generate a token with the full user DTO
     const token = this.tokenService.generateToken(user);
-    // Create and return the UserTokenDto
-    return { user, token };
+    const userTokenDto: UserTokenDto = { user, token };
+    return userTokenDto;
   }
 
   /**
@@ -73,7 +69,6 @@ export class AuthenticationService {
     if (!userEntity) {
       throw new NotFoundException(`User with ID ${id} not found`);
     }
-    // remove passwordHash from the user object
     const user = this.#mapToDto(userEntity);
     return user;
   }
@@ -83,17 +78,33 @@ export class AuthenticationService {
    * @param id - The ID of the user to delete.
    * @returns A promise that resolves to void in any case
    */
-  async deleteUser(id: string): Promise<void> {
-    // Find the user by ID
+  async deleteById(id: string): Promise<void> {
     const userEntity = await this.userRepository.findOne({ id: id });
 
-    // If user not found, throw NotFoundException
     if (!userEntity) {
-      return null;
+      this.logger.warn(`Not found user to delete with id: ${id}`);
+      return;
     }
-    // Delete the user
+
     await this.userRepository.nativeDelete(userEntity);
     this.logger.log(`User with ID ${id} has been deleted`);
+  }
+
+  /**
+   * Deletes a user by their email.
+   * @param email - The email of the user to delete.
+   * @returns A promise that resolves to void when the user is successfully deleted.
+   */
+  async deleteUserByEmail(email: string): Promise<void> {
+    const userEntity = await this.userRepository.findOne({ email });
+
+    if (!userEntity) {
+      this.logger.warn(`Not found user to delete with email: ${email}`);
+      return;
+    }
+
+    await this.userRepository.nativeDelete({ email });
+    this.logger.log(`User with email ${email} has been deleted`);
   }
 
   #mapToDto(user: UserEntity): UserDto {
