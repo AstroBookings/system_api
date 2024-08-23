@@ -1,4 +1,4 @@
-import { HashService } from './hash-service';
+import { HashService } from './hash.service';
 
 describe('HashService', () => {
   it('should be defined', () => {

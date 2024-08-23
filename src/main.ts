@@ -1,7 +1,7 @@
 import { LogLevel, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { AllExceptionFilter } from './core/all-exception.filter';
+import { AllExceptionsFilter } from './middleware/all-exceptions.filter';
 
 const nodeEnv = process.env.NODE_ENV;
 const loggerLevel: LogLevel[] =
@@ -16,7 +16,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule, { logger: loggerLevel });
   app.enableCors();
   app.useGlobalPipes(new ValidationPipe(validationPipeOptions));
-  app.useGlobalFilters(new AllExceptionFilter());
+  app.useGlobalFilters(new AllExceptionsFilter());
   await app.listen(3000);
 }
 bootstrap();

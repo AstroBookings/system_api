@@ -2,9 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 
 import { EntityRepository } from '@mikro-orm/core';
 import { getRepositoryToken } from '@mikro-orm/nestjs';
-import { HashService } from '../shared/hash-service';
-import { IdService } from '../shared/id-service';
-import { TokenService } from '../shared/token-service';
+import { HashService } from '../shared/hash.service';
+import { IdService } from '../shared/id.service';
+import { TokenService } from '../shared/token.service';
 import { AuthenticationService } from './authentication.service';
 import { RegisterDto } from './models/register.dto';
 import { UserTokenDto } from './models/user-token.dto';

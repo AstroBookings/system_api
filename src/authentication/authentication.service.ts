@@ -7,9 +7,9 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 
-import { HashService } from '../shared/hash-service';
-import { IdService } from '../shared/id-service';
-import { TokenService } from '../shared/token-service';
+import { HashService } from '../shared/hash.service';
+import { IdService } from '../shared/id.service';
+import { TokenService } from '../shared/token.service';
 import { RegisterDto } from './models/register.dto';
 import { UserTokenDto } from './models/user-token.dto';
 import { UserDto } from './models/user.dto';

@@ -3,7 +3,7 @@ import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AuthenticationModule } from './authentication/authentication.module';
 import { User } from './authentication/models/user.entity';
-import { LoggerMiddleware } from './core/logger.middleware';
+import { LoggerMiddleware } from './middleware/logger.middleware';
 
 const mikroOrmConfig = {
   driver: MongoDriver,

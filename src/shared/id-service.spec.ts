@@ -1,4 +1,4 @@
-import { IdService } from './id-service';
+import { IdService } from './id.service';
 
 describe('IdService', () => {
   it('should be defined', () => {

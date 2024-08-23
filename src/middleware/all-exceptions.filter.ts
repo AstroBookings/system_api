@@ -28,7 +28,7 @@ const errorMessages = {
 };
 
 @Catch(HttpException)
-export class AllExceptionFilter<T extends HttpException>
+export class AllExceptionsFilter<T extends HttpException>
   implements ExceptionFilter
 {
   private readonly logger = new Logger();
