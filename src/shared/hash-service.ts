@@ -1,8 +1,10 @@
+import { Injectable } from '@nestjs/common';
 import * as crypto from 'crypto';
 /**
  * Hash service is used to hash and compare passwords.
  * @requires crypto from 'crypto'
  */
+@Injectable()
 export class HashService {
   /**
    * Hash a password.

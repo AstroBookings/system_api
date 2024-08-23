@@ -1,8 +1,10 @@
+import { Injectable } from '@nestjs/common';
 import { Epoch, Snowyflake } from 'snowyflake';
 /**
  * Service for generating unique IDs
  * @requires Snowyflake for ID generation
  */
+@Injectable()
 export class IdService {
   readonly snowyflake = new Snowyflake({
     workerId: 1n,

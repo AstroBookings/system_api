@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserDto } from 'src/authentication/models/user.dto';
 
@@ -5,6 +6,7 @@ import { UserDto } from 'src/authentication/models/user.dto';
  * Token service is used to generate and verify JWT tokens.
  * @requires JwtService from @nestjs/jwt
  */
+@Injectable()
 export class TokenService {
   constructor(private readonly jwtService: JwtService) {}
 
