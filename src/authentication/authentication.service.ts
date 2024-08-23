@@ -25,7 +25,7 @@ import { User, UserEntity } from './models/user.entity';
  */
 @Injectable()
 export class AuthenticationService {
-  readonly logger = new Logger();
+  readonly _logger = new Logger(AuthenticationService.name);
 
   constructor(
     @InjectRepository(User)
@@ -33,9 +33,12 @@ export class AuthenticationService {
     private readonly tokenService: TokenService,
     private readonly hashService: HashService,
     private readonly idService: IdService,
-  ) {}
+  ) {
+    this._logger.log('🚀  initialized');
+  }
 
   async register(registerDto: RegisterDto): Promise<UserTokenDto> {
+    this._logger.log(`🤖 Registering user: ${registerDto.email}`);
     const existingUser = await this.userRepository.findOne({
       email: registerDto.email,
     });
@@ -65,6 +68,7 @@ export class AuthenticationService {
    * @throws NotFoundException if the user is not found
    */
   async getById(id: string): Promise<UserDto | null> {
+    this._logger.log(`🤖 Retrieving user by ID: ${id}`);
     const userEntity = await this.userRepository.findOne({ id: id });
     if (!userEntity) {
       throw new NotFoundException(`User with ID ${id} not found`);
@@ -79,15 +83,16 @@ export class AuthenticationService {
    * @returns A promise that resolves to void in any case
    */
   async deleteById(id: string): Promise<void> {
+    this._logger.log(`🤖 Deleting user by ID: ${id}`);
     const userEntity = await this.userRepository.findOne({ id: id });
 
     if (!userEntity) {
-      this.logger.warn(`Not found user to delete with id: ${id}`);
+      this._logger.warn(`👽 Not found user to delete with id: ${id}`);
       return;
     }
 
     await this.userRepository.nativeDelete(userEntity);
-    this.logger.log(`User with ID ${id} has been deleted`);
+    this._logger.log(`🤖 User with ID ${id} has been deleted`);
   }
 
   /**
@@ -96,15 +101,16 @@ export class AuthenticationService {
    * @returns A promise that resolves to void when the user is successfully deleted.
    */
   async deleteUserByEmail(email: string): Promise<void> {
+    this._logger.log(`🤖 Deleting user by email: ${email}`);
     const userEntity = await this.userRepository.findOne({ email });
 
     if (!userEntity) {
-      this.logger.warn(`Not found user to delete with email: ${email}`);
+      this._logger.warn(`👽 Not found user to delete with email: ${email}`);
       return;
     }
 
     await this.userRepository.nativeDelete({ email });
-    this.logger.log(`User with email ${email} has been deleted`);
+    this._logger.log(`🤖 User with email ${email} has been deleted`);
   }
 
   #mapToDto(user: UserEntity): UserDto {

@@ -28,15 +28,29 @@ const errorMessages = {
 };
 
 @Catch(HttpException)
-export class AllExceptionFilter<T extends HttpException >
+export class AllExceptionFilter<T extends HttpException>
   implements ExceptionFilter
 {
   private readonly logger = new Logger();
 
+  /**
+   * @description This method catches the exception and logs it to the console.
+   * @param exception - The exception to catch.
+   * @param host - The host to catch the exception.
+   */
+  catch(exception: T, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const request = ctx.getRequest<Request>();
+    this.#logError(exception, request);
+    const response = ctx.getResponse<Response>();
+    const status = this.#getStatus(exception);
+    this.#sendResponse(response, status, exception);
+  }
+
   #getStatus(exception: T): number {
     if (exception instanceof HttpException) {
       return exception.getStatus();
-    } 
+    }
     /* else if (exception instanceof EntityNotFoundError) {
       return HttpStatus.NOT_FOUND;
     } else if (exception instanceof TypeORMError) {
@@ -47,7 +61,7 @@ export class AllExceptionFilter<T extends HttpException >
 
   #logError(exception: T, request: Request) {
     const { method, originalUrl, query, headers, params, body } = request;
-    this.logger.error(`${method}:- ${originalUrl}`, `AllExceptionFilter`);
+    this.logger.error(`👽 ${method}:- ${originalUrl}`, `AllExceptionFilter`);
     const nodeEnv = process.env.NODE_ENV;
     if (nodeEnv !== 'production') {
       this.logger.debug(JSON.stringify(exception), `AllExceptionFilter`);
@@ -57,14 +71,5 @@ export class AllExceptionFilter<T extends HttpException >
   #sendResponse(response: Response, status: number, exception: T) {
     const message = exception.message;
     response.status(status).json({ message });
-  }
-
-  catch(exception: T, host: ArgumentsHost) {
-    const ctx = host.switchToHttp();
-    const response = ctx.getResponse<Response>();
-    const request = ctx.getRequest<Request>();
-    let status = this.#getStatus(exception);
-    this.#logError(exception, request);
-    this.#sendResponse(response, status, exception);
   }
 }

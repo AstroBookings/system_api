@@ -1,4 +1,12 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Logger,
+  Param,
+  Post,
+} from '@nestjs/common';
 import { AuthenticationService } from './authentication.service';
 import { RegisterDto } from './models/register.dto';
 import { UserTokenDto } from './models/user-token.dto';
@@ -11,7 +19,10 @@ import { UserDto } from './models/user.dto';
  */
 @Controller('authentication')
 export class AuthenticationController {
-  constructor(private readonly authenticationService: AuthenticationService) {}
+  readonly #logger = new Logger(AuthenticationController.name);
+  constructor(private readonly authenticationService: AuthenticationService) {
+    this.#logger.log('🚀  initialized');
+  }
 
   /**
    * Registers a new user.
@@ -20,6 +31,7 @@ export class AuthenticationController {
    */
   @Post('register')
   async register(@Body() registerDto: RegisterDto): Promise<UserTokenDto> {
+    this.#logger.log(`🤖 Registering user: ${registerDto.email}`);
     return this.authenticationService.register(registerDto);
   }
 
@@ -30,6 +42,7 @@ export class AuthenticationController {
    */
   @Delete(':email')
   async deleteUser(@Param('email') email: string): Promise<void> {
+    this.#logger.log(`🤖 Deleting user: ${email}`);
     return this.authenticationService.deleteUserByEmail(email);
   }
 
@@ -40,7 +53,7 @@ export class AuthenticationController {
    */
   @Get(':id')
   async getUser(@Param('id') id: string): Promise<UserDto> {
-    console.log('geting user', id);
+    this.#logger.log(`🤖 Getting user: ${id}`);
     return this.authenticationService.getById(id);
   }
 }
