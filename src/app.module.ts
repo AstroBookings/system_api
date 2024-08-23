@@ -11,10 +11,8 @@ const mikroOrmConfig = {
   entities: [User],
   debug: true,
 };
+
 @Module({
-  imports: [
-    MikroOrmModule.forRoot(mikroOrmConfig),
-    AuthenticationModule,
-  ],
+  imports: [MikroOrmModule.forRoot(mikroOrmConfig), AuthenticationModule],
 })
 export class AppModule {}

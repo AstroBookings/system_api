@@ -1,20 +1,14 @@
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
+import { HashService } from '../shared/hash-service';
+import { SharedModule } from '../shared/shared.module';
 import { AuthenticationController } from './authentication.controller';
 import { AuthenticationService } from './authentication.service';
 import { User } from './models/user.entity';
 
-const jwtConfig = {
-  secret: 'secret',
-  signOptions: { expiresIn: '1y' },
-};
-
 @Module({
-  imports: [
-    MikroOrmModule.forFeature([User]),
-    JwtModule.register(jwtConfig)],
+  imports: [MikroOrmModule.forFeature([User]), SharedModule],
   controllers: [AuthenticationController],
-  providers: [AuthenticationService]
+  providers: [HashService, AuthenticationService],
 })
-export class AuthenticationModule { }
+export class AuthenticationModule {}

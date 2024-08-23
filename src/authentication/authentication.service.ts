@@ -6,9 +6,10 @@ import {
   Logger,
   NotFoundException,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import * as crypto from 'crypto';
-import { Epoch, Snowyflake } from 'snowyflake';
+
+import { HashService } from '../shared/hash-service';
+import { IdService } from '../shared/id-service';
+import { TokenService } from '../shared/token-service';
 import { RegisterDto } from './models/register.dto';
 import { UserTokenDto } from './models/user-token.dto';
 import { UserDto } from './models/user.dto';
@@ -17,21 +18,21 @@ import { User, UserEntity } from './models/user.entity';
 /**
  * Authentication service
  * @description Logic and database access for authentication
- * @requires JwtService for JWT generation
  * @requires EntityRepository for database access
+ * @requires TokenService for JWT generation
+ * @requires HashService for password hashing
+ * @requires IdService for ID generation
  */
 @Injectable()
 export class AuthenticationService {
   readonly logger = new Logger();
-  readonly snowyflake = new Snowyflake({
-    workerId: 1n,
-    epoch: Epoch.Twitter,
-  });
 
   constructor(
     @InjectRepository(User)
     private readonly userRepository: EntityRepository<User>,
-    private readonly jwtService: JwtService,
+    private readonly tokenService: TokenService,
+    private readonly hashService: HashService,
+    private readonly idService: IdService,
   ) {}
 
   async register(registerDto: RegisterDto): Promise<UserTokenDto> {
@@ -43,8 +44,8 @@ export class AuthenticationService {
       throw new ConflictException('Email already in use');
     }
     // Create a new user entity from the DTO
-    const id = this.snowyflake.nextId().toString();
-    const passwordHash = this.#hash(registerDto.password);
+    const id = this.idService.generateId();
+    const passwordHash = this.hashService.hashText(registerDto.password);
     const userEntity: UserEntity = {
       id: id,
       name: registerDto.name,
@@ -56,7 +57,7 @@ export class AuthenticationService {
     await this.userRepository.insert(userEntity);
     const user: UserDto = this.#mapToDto(userEntity);
     // Generate a token with the full user DTO
-    const token = this.#generateToken(user);
+    const token = this.tokenService.generateToken(user);
     // Create and return the UserTokenDto
     return { user, token };
   }
@@ -93,20 +94,6 @@ export class AuthenticationService {
     // Delete the user
     await this.userRepository.nativeDelete(userEntity);
     this.logger.log(`User with ID ${id} has been deleted`);
-  }
-
-  #hash(source: string): string {
-    return crypto.createHash('sha256').update(source).digest('hex');
-  }
-
-  #generateToken(user: UserDto): string {
-    const payload = {
-      sub: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-    };
-    return this.jwtService.sign(payload);
   }
 
   #mapToDto(user: UserEntity): UserDto {
