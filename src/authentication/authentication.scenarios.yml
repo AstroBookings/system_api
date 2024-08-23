@@ -1,0 +1,21 @@
+Feature: User Registration
+  As a visitor, I want to register an account, so that I can access the system.
+
+
+  Scenario: Register a new user
+    Given the API is available
+    When the user sends a POST request to "/api/authentication/register" with the following data:
+      | name     | email                | password    | role     |
+      | "John Doe" | "johndoe@example.com" | "password123" | "traveler" |
+    Then the response should have a status code of 201
+    And the response should contain a field "token" with a JWT value
+    And the response should contain a field "user" with the user information
+    And the "user" should not contain a field "password"
+
+  Scenario: Register with an existing email
+    Given the API is available
+    When the user sends a POST request to "/api/authentication/register" with the following data:
+      | name     | email                | password    | role     |
+      | "John Doe" | "johndoe@example.com" | "password123" | "traveler" |
+    Then the response should have a status code of 409
+    And the response should contain an error message "Email already in use"

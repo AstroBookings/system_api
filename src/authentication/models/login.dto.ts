@@ -1,5 +1,9 @@
-import { IsEmail, IsNotEmpty, IsString, MinLength } from "class-validator";
+import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
 
+/**
+ * Login DTO
+ * @description Requires email and password
+ */
 export class LoginDto {
   @IsEmail()
   @IsNotEmpty()

@@ -1,18 +1,19 @@
 import { MongoDriver } from '@mikro-orm/mongodb';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
-import { User } from './authentication/models/user.entity';
 import { AuthenticationModule } from './authentication/authentication.module';
+import { User } from './authentication/models/user.entity';
 
+const mikroOrmConfig = {
+  driver: MongoDriver,
+  clientUrl: 'mongodb://localhost:27017',
+  dbName: 'SystemDB',
+  entities: [User],
+  debug: true,
+};
 @Module({
   imports: [
-    MikroOrmModule.forRoot({
-      entities: [User],
-      dbName: 'SystemDB',
-      clientUrl: 'mongodb://localhost:27017',
-      debug: true,
-      driver: MongoDriver,
-    }),
+    MikroOrmModule.forRoot(mikroOrmConfig),
     AuthenticationModule,
   ],
 })

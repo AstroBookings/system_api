@@ -1,117 +1,97 @@
-import {
-    ConflictException,
-    Injectable,
-    Logger,
-    NotFoundException,
-} from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-
-import * as crypto from 'crypto';
-
 import { EntityRepository } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
+import {
+  ConflictException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import * as crypto from 'crypto';
 import { Epoch, Snowyflake } from 'snowyflake';
 import { RegisterDto } from './models/register.dto';
 import { UserTokenDto } from './models/user-token.dto';
 import { UserDto } from './models/user.dto';
-import { User } from './models/user.entity';
+import { User, UserEntity } from './models/user.entity';
 
+/**
+ * Authentication service
+ * @description Logic and database access for authentication
+ * @requires JwtService for JWT generation
+ * @requires EntityRepository for database access
+ */
 @Injectable()
 export class AuthenticationService {
-  private readonly logger = new Logger();
-  private snowyflake = new Snowyflake({
+  readonly logger = new Logger();
+  readonly snowyflake = new Snowyflake({
     workerId: 1n,
     epoch: Epoch.Twitter,
   });
 
   constructor(
-    private readonly jwtService: JwtService,
     @InjectRepository(User)
     private readonly userRepository: EntityRepository<User>,
+    private readonly jwtService: JwtService,
   ) {}
 
   async register(registerDto: RegisterDto): Promise<UserTokenDto> {
-    try {
-      // console.log('🤖 entering register', registerDto);
-      // Check if user with the same email already exists
-      const existingUser = await this.userRepository.findOne({
-        email: registerDto.email,
-      });
-      if (existingUser) {
-        this.logger.error('Email already in use');
-        throw new ConflictException('Email already in use');
-      }
-      // Create a new user entity from the DTO
-      const passwordHash = this.#hash(registerDto.password);
-      const newLocal = {
-        id: this.snowyflake.nextId().toString(),
-        name: registerDto.name,
-        email: registerDto.email,
-        passwordHash: passwordHash,
-        role: registerDto.role,
-      };
-      
-
-      await this.userRepository.insert(newLocal);
-      const user: UserDto = {
-        id: newLocal.id,
-        name: newLocal.name,
-        email: newLocal.email,
-        role: newLocal.role,
-      };
-
-      // Generate a token with the full user DTO
-      const token = this.#generateToken(user);
-      // Create and return the UserTokenDto
-      return {
-        user,
-        token,
-      };
-    } catch (error) {
-      console.log('👽 error', error);
+    // Check if user with the same email already exists
+    const existingUser = await this.userRepository.findOne({
+      email: registerDto.email,
+    });
+    if (existingUser) {
+      throw new ConflictException('Email already in use');
     }
+    // Create a new user entity from the DTO
+    const id = this.snowyflake.nextId().toString();
+    const passwordHash = this.#hash(registerDto.password);
+    const userEntity: UserEntity = {
+      id: id,
+      name: registerDto.name,
+      email: registerDto.email,
+      passwordHash: passwordHash,
+      role: registerDto.role,
+    };
+    // Insert the user entity into the database
+    await this.userRepository.insert(userEntity);
+    const user: UserDto = this.#mapToDto(userEntity);
+    // Generate a token with the full user DTO
+    const token = this.#generateToken(user);
+    // Create and return the UserTokenDto
+    return { user, token };
   }
 
   /**
    * Retrieves a user by their ID.
    * @param id - The ID of the user to retrieve.
-   * @returns A promise that resolves to the UserDto if found, or null if not found.
+   * @returns A promise that resolves to the UserDto if found
+   * @throws NotFoundException if the user is not found
    */
   async getById(id: string): Promise<UserDto | null> {
-    const user = await this.userRepository.findOne({ id: id });
-
-    if (!user) {
-      console.log('👽 user not found', id);
-      return null;
+    const userEntity = await this.userRepository.findOne({ id: id });
+    if (!userEntity) {
+      throw new NotFoundException(`User with ID ${id} not found`);
     }
-    console.log('👽 user found', user);
-    return {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-    };
+    // remove passwordHash from the user object
+    const user = this.#mapToDto(userEntity);
+    return user;
   }
 
   /**
    * Deletes a user by their ID.
    * @param id - The ID of the user to delete.
-   * @returns A promise that resolves to void when the user is successfully deleted.
+   * @returns A promise that resolves to void in any case
    */
   async deleteUser(id: string): Promise<void> {
-    console.log('🤖 entering deleting user', id);
     // Find the user by ID
-    const user = await this.userRepository.findOne({ id: id });
+    const userEntity = await this.userRepository.findOne({ id: id });
 
     // If user not found, throw NotFoundException
-    if (!user) {
-      console.log('👽 user not found', id);
-      throw new NotFoundException(`User with ID ${id} not found`);
+    if (!userEntity) {
+      return null;
     }
-    console.log('🤖 deleting user', id);
     // Delete the user
-    await this.userRepository.nativeDelete(user);
-    console.log('🤖 user deleted', id);
+    await this.userRepository.nativeDelete(userEntity);
     this.logger.log(`User with ID ${id} has been deleted`);
   }
 
@@ -127,5 +107,10 @@ export class AuthenticationService {
       role: user.role,
     };
     return this.jwtService.sign(payload);
+  }
+
+  #mapToDto(user: UserEntity): UserDto {
+    const { passwordHash, ...userWithoutPassword } = user;
+    return userWithoutPassword;
   }
 }
