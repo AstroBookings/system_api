@@ -19,3 +19,24 @@ Feature: User Registration
       | "John Doe" | "johndoe@example.com" | "password123" | "traveler" |
     Then the response should have a status code of 409
     And the response should contain an error message "Email already in use"
+
+
+Feature: User Login
+  As a registered user, I want to log in to the system, so that I can access my account.
+
+  Scenario: Log in with correct credentials
+    Given the API is available
+    When the user sends a POST request to "/api/authentication/login" with the following data:
+      | email                | password    |
+      | "John Doe" | "password123" |
+    Then the response should have a status code of 200
+    And the response should contain a field "token" with a JWT value
+    And the response should contain a field "user" with the user information
+
+  Scenario: Log in with incorrect password
+    Given the API is available
+    When the user sends a POST request to "/api/authentication/login" with the following data:
+      | email                | password    |
+      | "John Doe" | "wrongpassword" |
+    Then the response should have a status code of 401
+    And the response should contain an error message "Invalid credentials"

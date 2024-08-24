@@ -8,6 +8,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { AuthenticationService } from './authentication.service';
+import { LoginDto } from './models/login.dto';
 import { RegisterDto } from './models/register.dto';
 import { UserTokenDto } from './models/user-token.dto';
 import { UserDto } from './models/user.dto';
@@ -20,8 +21,9 @@ import { UserDto } from './models/user.dto';
 @Controller('authentication')
 export class AuthenticationController {
   readonly #logger = new Logger(AuthenticationController.name);
+
   constructor(private readonly authenticationService: AuthenticationService) {
-    this.#logger.log('🚀  initialized');
+    this.#logger.debug('🚀  initialized');
   }
 
   /**
@@ -55,5 +57,16 @@ export class AuthenticationController {
   async getUser(@Param('id') id: string): Promise<UserDto> {
     this.#logger.log(`🤖 Getting user: ${id}`);
     return this.authenticationService.getById(id);
+  }
+
+  /**
+   * Logs in a user.
+   * @param loginDto - The data for logging in a user.
+   * @returns A promise that resolves to a UserTokenDto containing the user's token and information.
+   */
+  @Post('login')
+  async login(@Body() loginDto: LoginDto): Promise<UserTokenDto> {
+    this.#logger.log(`🤖 Logging in user: ${loginDto.email}`);
+    return this.authenticationService.login(loginDto);
   }
 }

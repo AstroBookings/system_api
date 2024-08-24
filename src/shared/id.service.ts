@@ -7,7 +7,8 @@ import { Epoch, Snowyflake } from 'snowyflake';
 @Injectable()
 export class IdService {
   readonly snowyflake = new Snowyflake({
-    workerId: 1n,
+    workerId: 0n,
+    processId: 1n,
     epoch: Epoch.Twitter,
   });
   /**

@@ -14,4 +14,14 @@ export class HashService {
   hashText(text: string): string {
     return crypto.createHash('sha256').update(text).digest('hex');
   }
+  /**
+   * Compares a plain text with a hashed text.
+   * @param text - The plain text.
+   * @param hash - The hashed text.
+   * @returns A promise that resolves to true if the texts match, false otherwise.
+   */
+  isValid(text: string, hash: string): boolean {
+    const hashedText = this.hashText(text);
+    return hashedText === hash;
+  }
 }
