@@ -1,6 +1,6 @@
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
-import { UserDto } from '../authentication/models/user.dto';
+import { User } from '../api/authentication/models/user.type';
 import { TokenService } from './token.service';
 
 describe('TokenService', () => {
@@ -30,7 +30,7 @@ describe('TokenService', () => {
 
   describe('generateToken', () => {
     it('should generate a token', () => {
-      const user: UserDto = {
+      const user: User = {
         id: '1',
         name: 'Test User',
         email: 'test@example.com',
@@ -44,9 +44,7 @@ describe('TokenService', () => {
 
       expect(jwtService.sign).toHaveBeenCalledWith({
         sub: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
+        user,
       });
       expect(result).toBe(mockToken);
     });

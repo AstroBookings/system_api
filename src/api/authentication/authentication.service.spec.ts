@@ -2,20 +2,22 @@ import { EntityRepository } from '@mikro-orm/core';
 import { getRepositoryToken } from '@mikro-orm/nestjs';
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { HashService } from '../shared/hash.service';
-import { IdService } from '../shared/id.service';
-import { TokenService } from '../shared/token.service';
+import { HashService } from '../../shared/hash.service';
+import { IdService } from '../../shared/id.service';
+import { TokenService } from '../../shared/token.service';
 import { AuthenticationService } from './authentication.service';
 import { LoginDto } from './models/login.dto';
 import { RegisterDto } from './models/register.dto';
-import { UserTokenDto } from './models/user-token.dto';
-import { User, UserEntity } from './models/user.entity';
+import { UserToken } from './models/user-token.type';
+import { UserEntity, UserEntityData } from './models/user.entity';
 
 // ToDo: fix error and failing test.
 
 describe('AuthenticationService', () => {
   let service: AuthenticationService;
-  let mockUserRepository: Partial<jest.Mocked<EntityRepository<User>>>;
+  let mockUserRepository: Partial<
+    jest.Mocked<EntityRepository<UserEntityData>>
+  >;
   let mockTokenService: Partial<jest.Mocked<TokenService>>;
   let mockHashService: Partial<jest.Mocked<HashService>>;
   let mockIdService: Partial<jest.Mocked<IdService>>;
@@ -39,7 +41,7 @@ describe('AuthenticationService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         {
-          provide: getRepositoryToken(User),
+          provide: getRepositoryToken(UserEntity),
           useValue: mockUserRepository,
         },
         {
@@ -65,12 +67,12 @@ describe('AuthenticationService', () => {
     it('should register a user', async () => {
       // Arrange
       const input_registerDto: RegisterDto = {
-        name: 'Test New User',
-        email: 'test@new.com',
-        password: 'password',
-        role: 'agency',
+        name: 'John Doe',
+        email: 'john.doe@test.dev',
+        password: 'Password@123',
+        role: 'traveler',
       };
-      const expected_result: UserTokenDto = {
+      const expected_result: UserToken = {
         user: {
           id: '1',
           name: input_registerDto.name,
@@ -86,7 +88,7 @@ describe('AuthenticationService', () => {
       mockTokenService.generateToken.mockReturnValue('mocked_token');
 
       // Act
-      const actual_result: UserTokenDto =
+      const actual_result: UserToken =
         await service.register(input_registerDto);
 
       // Assert
@@ -103,12 +105,12 @@ describe('AuthenticationService', () => {
     it('should throw Exception if user already exists', async () => {
       // Arrange
       const input_registerDto: RegisterDto = {
-        name: 'Test New User',
-        email: 'test@new.com',
-        password: 'password',
-        role: 'agency',
+        name: 'John Doe',
+        email: 'john.doe@test.dev',
+        password: 'Password@123',
+        role: 'traveler',
       };
-      const userEntity: UserEntity = {
+      const userEntity: UserEntityData = {
         id: '1',
         name: input_registerDto.name,
         email: input_registerDto.email,
@@ -128,17 +130,17 @@ describe('AuthenticationService', () => {
     it('should log in a user with correct credentials', async () => {
       // Arrange
       const input_loginDto: LoginDto = {
-        email: 'test@existing.com',
-        password: 'password',
+        email: 'john.doe@test.dev',
+        password: 'Password@123',
       };
-      const userEntity: UserEntity = {
+      const userEntity: UserEntityData = {
         id: '1',
-        name: 'Test User',
+        name: 'John Doe',
         email: input_loginDto.email,
         passwordHash: 'hashed_password',
         role: 'agency',
       };
-      const expected_result: UserTokenDto = {
+      const expected_result: UserToken = {
         user: {
           id: userEntity.id,
           name: userEntity.name,
@@ -153,7 +155,7 @@ describe('AuthenticationService', () => {
       mockTokenService.generateToken.mockReturnValue('mocked_token');
 
       // Act
-      const actual_result: UserTokenDto = await service.login(input_loginDto);
+      const actual_result: UserToken = await service.login(input_loginDto);
 
       // Assert
       expect(mockUserRepository.findOne).toHaveBeenCalledWith({
@@ -172,15 +174,15 @@ describe('AuthenticationService', () => {
     it('should throw UnauthorizedException for invalid credentials', async () => {
       // Arrange
       const input_loginDto: LoginDto = {
-        email: 'test@existing.com',
-        password: 'wrongpassword',
+        email: 'john.doe@test.dev',
+        password: 'WrongPassword@123',
       };
-      const userEntity: UserEntity = {
+      const userEntity: UserEntityData = {
         id: '1',
-        name: 'Test User',
+        name: 'John Doe',
         email: input_loginDto.email,
         passwordHash: 'hashed_password',
-        role: 'agency',
+        role: 'traveler',
       };
 
       mockUserRepository.findOne.mockResolvedValue(userEntity);
@@ -202,8 +204,8 @@ describe('AuthenticationService', () => {
     it('should throw UnauthorizedException if user is not found', async () => {
       // Arrange
       const input_loginDto: LoginDto = {
-        email: 'test@example.com',
-        password: 'password',
+        email: 'non.existent@test.dev',
+        password: 'Password@123',
       };
 
       mockUserRepository.findOne.mockResolvedValue(null);
@@ -215,6 +217,57 @@ describe('AuthenticationService', () => {
       expect(mockUserRepository.findOne).toHaveBeenCalledWith({
         email: input_loginDto.email,
       });
+    });
+  });
+
+  // ToDo: Token Validation
+
+  describe('validate', () => {
+    it('should validate a token successfully', async () => {
+      // Arrange
+      const input_token: string = 'valid_token';
+      const mockUser: UserEntityData = {
+        id: '1',
+        name: 'John Doe',
+        email: 'john.doe@test.dev',
+        passwordHash: 'hashed_password',
+        role: 'traveler',
+      };
+      const mockExpirationDate: Date = new Date();
+
+      mockTokenService.validateToken = jest.fn().mockReturnValue(mockUser);
+      mockTokenService.getExpirationDate = jest
+        .fn()
+        .mockReturnValue(mockExpirationDate);
+
+      // Act
+      const result = await service.validate(input_token);
+
+      // Assert
+      expect(result).toEqual({
+        user: mockUser,
+        token: input_token,
+        expiresAt: mockExpirationDate,
+      });
+      expect(mockTokenService.validateToken).toHaveBeenCalledWith(input_token);
+      expect(mockTokenService.getExpirationDate).toHaveBeenCalledWith(
+        input_token,
+      );
+    });
+
+    it('should throw UnauthorizedException if token is invalid', async () => {
+      // Arrange
+      const input_token: string = 'invalid_token';
+
+      mockTokenService.validateToken = jest.fn().mockImplementation(() => {
+        throw new UnauthorizedException('Invalid token');
+      });
+
+      // Act & Assert
+      await expect(service.validate(input_token)).rejects.toThrow(
+        UnauthorizedException,
+      );
+      expect(mockTokenService.validateToken).toHaveBeenCalledWith(input_token);
     });
   });
 });

@@ -6,7 +6,7 @@ import { Role } from './role.type';
  * @description Entity for read/write on users collection
  */
 @Entity({ collection: 'users' })
-export class User {
+export class UserEntity {
   /**
    * MongoDB Primary key
    */
@@ -33,7 +33,7 @@ export class User {
 }
 
 /**
- * User entity type
+ * User entity data type
  * @description Without the MongoDB primary key
  */
-export type UserEntity = Omit<User, '_id'>;
+export type UserEntityData = Omit<UserEntity, '_id'>;

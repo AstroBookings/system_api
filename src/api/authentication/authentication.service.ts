@@ -7,15 +7,15 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-
-import { HashService } from '../shared/hash.service';
-import { IdService } from '../shared/id.service';
-import { TokenService } from '../shared/token.service';
+import { HashService } from '../../shared/hash.service';
+import { IdService } from '../../shared/id.service';
+import { TokenService } from '../../shared/token.service';
 import { LoginDto } from './models/login.dto';
 import { RegisterDto } from './models/register.dto';
-import { UserTokenDto } from './models/user-token.dto';
-import { UserDto } from './models/user.dto';
-import { User, UserEntity } from './models/user.entity';
+import { UserToken } from './models/user-token.type';
+import { UserEntity, UserEntityData } from './models/user.entity';
+import { User } from './models/user.type';
+import { ValidToken } from './models/valid-token.type';
 
 /**
  * Authentication service
@@ -30,8 +30,8 @@ export class AuthenticationService {
   readonly #logger = new Logger(AuthenticationService.name);
 
   constructor(
-    @InjectRepository(User)
-    private readonly userRepository: EntityRepository<User>,
+    @InjectRepository(UserEntity)
+    private readonly userRepository: EntityRepository<UserEntity>,
     private readonly tokenService: TokenService,
     private readonly hashService: HashService,
     private readonly idService: IdService,
@@ -39,7 +39,7 @@ export class AuthenticationService {
     this.#logger.debug('🚀  initialized');
   }
 
-  async register(registerDto: RegisterDto): Promise<UserTokenDto> {
+  async register(registerDto: RegisterDto): Promise<UserToken> {
     this.#logger.log(`🤖 Registering user: ${registerDto.email}`);
     const existingUser = await this.userRepository.findOne({
       email: registerDto.email,
@@ -47,7 +47,7 @@ export class AuthenticationService {
     if (existingUser) {
       throw new ConflictException('Email already in use');
     }
-    const userEntity: UserEntity = {
+    const userEntity: UserEntityData = {
       id: this.idService.generateId(),
       email: registerDto.email,
       passwordHash: this.hashService.hashText(registerDto.password),
@@ -64,7 +64,7 @@ export class AuthenticationService {
    * @returns A promise that resolves to a UserTokenDto containing the user's token and information.
    * @throws UnauthorizedException if the credentials are invalid
    */
-  async login(loginDto: LoginDto): Promise<UserTokenDto> {
+  async login(loginDto: LoginDto): Promise<UserToken> {
     this.#logger.log(`🤖 Logging in user: ${loginDto.email}`);
     const userEntity = await this.userRepository.findOne({
       email: loginDto.email,
@@ -84,7 +84,7 @@ export class AuthenticationService {
    * @returns A promise that resolves to the UserDto if found
    * @throws NotFoundException if the user is not found
    */
-  async getById(id: string): Promise<UserDto | null> {
+  async getById(id: string): Promise<User | null> {
     this.#logger.log(`🤖 Retrieving user by ID: ${id}`);
     const userEntity = await this.userRepository.findOne({ id: id });
     if (!userEntity) {
@@ -129,13 +129,24 @@ export class AuthenticationService {
     this.#logger.log(`🤖 User with email ${email} has been deleted`);
   }
 
-  #mapToDto(user: UserEntity): UserDto {
+  /**
+   * Validates a user token.
+   * @param token - The token to validate.
+   * @returns A promise that resolves to a ValidToken object.
+   */
+  async validate(token: string): Promise<ValidToken> {
+    const user = this.tokenService.validateToken(token);
+    const expiresAt = this.tokenService.getExpirationDate(token);
+    return { user, token, expiresAt };
+  }
+
+  #mapToDto(user: UserEntityData): User {
     const { passwordHash, ...userWithoutPassword } = user;
     return userWithoutPassword;
   }
 
-  #generateUserTokenDto(userEntity: UserEntity): UserTokenDto {
-    const user: UserDto = this.#mapToDto(userEntity);
+  #generateUserTokenDto(userEntity: UserEntityData): UserToken {
+    const user: User = this.#mapToDto(userEntity);
     const token = this.tokenService.generateToken(user);
     return { user, token };
   }

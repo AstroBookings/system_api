@@ -1,10 +1,10 @@
-import { UserDto } from './user.dto';
+import { User } from './user.type';
 
 /**
  * User Token DTO
  * @description DTO for returning a user and their token
  */
-export class UserTokenDto {
-  user: UserDto;
+export type UserToken = {
+  user: User;
   token: string;
-}
+};

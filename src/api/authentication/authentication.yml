@@ -40,3 +40,22 @@ Feature: User Login
       | "John Doe" | "wrongpassword" |
     Then the response should have a status code of 401
     And the response should contain an error message "Invalid credentials"
+
+Feature: JWT Validation
+  As the system, I need to validate a JWT and identify the user to ensure secure access to protected resources.
+
+  Scenario: Validate a JWT and identify the user
+    Given the API is available
+    And the user is authenticated
+    And the user has a valid JWT
+    When the user sends a GET request to "/api/authentication/validation"
+    Then the response should have a status code of 200
+    And the response should contain a field "user" with the user information
+
+  Scenario: Validate an invalid or expired JWT
+    Given the API is available
+    And the user is authenticated
+    And the user has an invalid JWT
+    When the user sends a GET request to "/api/authentication/validation"
+    Then the response should have a status code of 401
+    And the response should contain an error message "Invalid token"

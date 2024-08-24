@@ -1,8 +1,8 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
+  HttpCode,
   Logger,
   Param,
   Post,
@@ -10,8 +10,8 @@ import {
 import { AuthenticationService } from './authentication.service';
 import { LoginDto } from './models/login.dto';
 import { RegisterDto } from './models/register.dto';
-import { UserTokenDto } from './models/user-token.dto';
-import { UserDto } from './models/user.dto';
+import { UserToken } from './models/user-token.type';
+import { ValidToken } from './models/valid-token.type';
 
 /**
  * Authentication controller
@@ -32,31 +32,9 @@ export class AuthenticationController {
    * @returns A promise that resolves to a UserTokenDto containing the user's token and information.
    */
   @Post('register')
-  async register(@Body() registerDto: RegisterDto): Promise<UserTokenDto> {
+  async register(@Body() registerDto: RegisterDto): Promise<UserToken> {
     this.#logger.log(`🤖 Registering user: ${registerDto.email}`);
     return this.authenticationService.register(registerDto);
-  }
-
-  /**
-   * Deletes a user by their email.
-   * @param email - The email of the user to delete.
-   * @returns A promise that resolves always to void.
-   */
-  @Delete(':email')
-  async deleteUser(@Param('email') email: string): Promise<void> {
-    this.#logger.log(`🤖 Deleting user: ${email}`);
-    return this.authenticationService.deleteUserByEmail(email);
-  }
-
-  /**
-   * Retrieves a user by their ID.
-   * @param id - The ID of the user to retrieve.
-   * @returns A promise that resolves to the UserDto if found
-   */
-  @Get(':id')
-  async getUser(@Param('id') id: string): Promise<UserDto> {
-    this.#logger.log(`🤖 Getting user: ${id}`);
-    return this.authenticationService.getById(id);
   }
 
   /**
@@ -65,8 +43,15 @@ export class AuthenticationController {
    * @returns A promise that resolves to a UserTokenDto containing the user's token and information.
    */
   @Post('login')
-  async login(@Body() loginDto: LoginDto): Promise<UserTokenDto> {
+  @HttpCode(200)
+  async login(@Body() loginDto: LoginDto): Promise<UserToken> {
     this.#logger.log(`🤖 Logging in user: ${loginDto.email}`);
     return this.authenticationService.login(loginDto);
+  }
+
+  @Get('validate/:token')
+  async validate(@Param('token') token: string): Promise<ValidToken> {
+    this.#logger.log(`🤖 Validating token: ${token}`);
+    return this.authenticationService.validate(token);
   }
 }
