@@ -4,8 +4,8 @@ import { AuthenticationController } from './authentication.controller';
 import { AuthenticationService } from './authentication.service';
 import { LoginDto } from './models/login.dto';
 import { RegisterDto } from './models/register.dto';
+import { UserTokenPayload } from './models/user-token-payload.type';
 import { UserToken } from './models/user-token.type';
-import { ValidToken } from './models/valid-token.type';
 
 describe('AuthenticationController', () => {
   let controller: AuthenticationController;
@@ -36,10 +36,13 @@ describe('AuthenticationController', () => {
       }),
       validate: jest.fn(async (x) => {
         if (x == 'mocked_jwt_token') {
-          const validToken: ValidToken = {
+          const validToken: UserTokenPayload = {
             user: mockedUserToken.user,
-            token: mockedUserToken.token,
-            expiresAt: mockExpiresAt,
+            tokenPayload: {
+              sub: '1',
+              iat: 1724516766,
+              exp: 1756074366,
+            },
           };
           return validToken;
         }
@@ -147,14 +150,17 @@ describe('AuthenticationController', () => {
       const token: string = 'mocked_jwt_token';
 
       // Act
-      const actual_result: ValidToken = await controller.validate(token);
+      const actual_result: UserTokenPayload = await controller.validate(token);
 
       // Assert
       expect(mockedAuthService.validate).toHaveBeenCalledWith(token);
-      const expected_result: ValidToken = {
+      const expected_result: UserTokenPayload = {
         user: mockedUserToken.user,
-        token: mockedUserToken.token,
-        expiresAt: mockExpiresAt,
+        tokenPayload: {
+          sub: '1',
+          iat: 1724516766,
+          exp: 1756074366,
+        },
       };
       expect(actual_result).toEqual(expected_result);
     });

@@ -10,8 +10,8 @@ import {
 import { AuthenticationService } from './authentication.service';
 import { LoginDto } from './models/login.dto';
 import { RegisterDto } from './models/register.dto';
+import { UserTokenPayload } from './models/user-token-payload.type';
 import { UserToken } from './models/user-token.type';
-import { ValidToken } from './models/valid-token.type';
 
 /**
  * Authentication controller
@@ -50,7 +50,7 @@ export class AuthenticationController {
   }
 
   @Get('validate/:token')
-  async validate(@Param('token') token: string): Promise<ValidToken> {
+  async validate(@Param('token') token: string): Promise<UserTokenPayload> {
     this.#logger.log(`🤖 Validating token: ${token}`);
     return this.authenticationService.validate(token);
   }

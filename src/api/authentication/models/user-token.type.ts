@@ -1,12 +1,10 @@
 import { User } from './user.type';
 
 /**
- * User Token DTO
+ * User Token DTO for login and register responses
  * @description DTO for returning a user and their token
  */
 export type UserToken = {
-  user: User; // ? should we remove the user?
+  user: User;
   token: string;
 };
-
-// ? : could be simplified to just the token and the user id?

@@ -1,6 +1,7 @@
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
 import { User } from '../api/authentication/models/user.type';
+import { SharedModule } from './shared.module';
 import { TokenService } from './token.service';
 
 describe('TokenService', () => {
@@ -9,6 +10,7 @@ describe('TokenService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [SharedModule],
       providers: [TokenService, JwtService],
     }).compile();
 
@@ -22,23 +24,17 @@ describe('TokenService', () => {
 
   describe('generateToken', () => {
     it('should generate a token', () => {
-      const user: User = {
+      const inputUser: User = {
         id: '1',
         name: 'Test User',
         email: 'test@example.com',
         role: 'agency',
       };
-
-      const mockToken: string = 'mockToken';
-      jest.spyOn(jwtService, 'sign').mockReturnValue(mockToken);
-
-      const result: string = tokenService.generateToken(user);
-
-      expect(jwtService.sign).toHaveBeenCalledWith({
-        sub: user.id,
-        user,
-      });
-      // expect(result).toBe(mockToken);
+      jest.spyOn(jwtService, 'sign');
+      const actualToken: string = tokenService.generateToken(inputUser);
+      expect(jwtService.sign).toHaveBeenCalledWith({ sub: inputUser.id });
+      const actualDecoded = jwtService.verify(actualToken);
+      expect(actualDecoded.sub).toBe(inputUser.id);
     });
   });
 });

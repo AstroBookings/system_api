@@ -12,10 +12,13 @@ import { IdService } from '../../shared/id.service';
 import { TokenService } from '../../shared/token.service';
 import { LoginDto } from './models/login.dto';
 import { RegisterDto } from './models/register.dto';
+import {
+  TokenPayload,
+  UserTokenPayload,
+} from './models/user-token-payload.type';
 import { UserToken } from './models/user-token.type';
 import { UserEntity, UserEntityData } from './models/user.entity';
 import { User } from './models/user.type';
-import { ValidToken } from './models/valid-token.type';
 
 /**
  * Authentication service
@@ -134,10 +137,10 @@ export class AuthenticationService {
    * @param token - The token to validate.
    * @returns A promise that resolves to a ValidToken object.
    */
-  async validate(token: string): Promise<ValidToken> {
-    const user = this.tokenService.validateToken(token);
-    const expiresAt = this.tokenService.getExpirationDate(token);
-    return { user, token, expiresAt };
+  async validate(token: string): Promise<UserTokenPayload> {
+    const tokenPayload: TokenPayload = this.tokenService.validateToken(token);
+    const user = await this.userRepository.findOne({ id: tokenPayload.sub });
+    return { user, tokenPayload };
   }
 
   #mapToDto(user: UserEntityData): User {

@@ -1,5 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { TokenPayload } from 'src/api/authentication/models/user-token-payload.type';
 import { User } from '../api/authentication/models/user.type';
 
 @Injectable()
@@ -12,31 +13,20 @@ export class TokenService {
    * @returns The generated JWT token.
    */
   public generateToken(user: User): string {
-    // ! should we save the user too?
-    return this.jwtService.sign({ sub: user.id, user });
+    return this.jwtService.sign({ sub: user.id });
   }
 
   /**
    * Validates a JWT token and returns the decoded user information.
    * @param token - The JWT token to validate.
-   * @returns The decoded user information.
+   * @returns The decoded payload information.
    */
-  public validateToken(token: string): User {
-    // ! should we return the user or the sub?
+  public validateToken(token: string): TokenPayload {
     try {
-      return this.jwtService.verify(token);
+      const decoded = this.jwtService.verify(token);
+      return decoded;
     } catch (error) {
       throw new UnauthorizedException(error);
     }
-  }
-
-  /**
-   * Gets the expiration date of a JWT token.
-   * @param token - The JWT token to get the expiration date for.
-   * @returns The expiration date of the token.
-   */
-  public getExpirationDate(token: string): Date {
-    const decoded = this.jwtService.decode(token) as { exp: number };
-    return new Date(decoded.exp * 1000);
   }
 }
