@@ -12,6 +12,7 @@ export class TokenService {
    * @returns The generated JWT token.
    */
   public generateToken(user: User): string {
+    // ! should we save the user too?
     return this.jwtService.sign({ sub: user.id, user });
   }
 
@@ -21,6 +22,7 @@ export class TokenService {
    * @returns The decoded user information.
    */
   public validateToken(token: string): User {
+    // ! should we return the user or the sub?
     try {
       return this.jwtService.verify(token);
     } catch (error) {

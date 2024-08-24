@@ -1,8 +1,8 @@
 import { Role } from './role.type';
 
 /**
- * User DTO
- * @description DTO for returning a user
+ * User data type
+ * @description Data type for a user
  */
 export type User = {
   id: string;
