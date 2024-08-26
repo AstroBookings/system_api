@@ -21,17 +21,6 @@ export class AdminController {
   }
 
   /**
-   * Deletes a user by their email.
-   * @param email - The email of the user to delete.
-   * @returns A promise that resolves always to void.
-   */
-  @Delete(':email')
-  async deleteUser(@Param('email') email: string): Promise<void> {
-    this.#logger.log(`🤖 Deleting user: ${email}`);
-    return this.authenticationService.deleteUserByEmail(email);
-  }
-
-  /**
    * Retrieves a user by their ID.
    * @param id - The ID of the user to retrieve.
    * @returns A promise that resolves to the UserDto if found
@@ -40,5 +29,16 @@ export class AdminController {
   async getUser(@Param('id') id: string): Promise<User> {
     this.#logger.log(`🤖 Getting user: ${id}`);
     return this.authenticationService.getById(id);
+  }
+
+  /**
+   * Deletes a user by their email.
+   * @param email - The email of the user to delete.
+   * @returns A promise that resolves always to void.
+   */
+  @Delete(':email')
+  async deleteUser(@Param('email') email: string): Promise<void> {
+    this.#logger.log(`🤖 Deleting user: ${email}`);
+    return this.authenticationService.deleteUserByEmail(email);
   }
 }

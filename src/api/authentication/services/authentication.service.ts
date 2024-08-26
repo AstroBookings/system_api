@@ -12,9 +12,9 @@ import { LoginDto } from '../models/login.dto';
 import { RegisterDto } from '../models/register.dto';
 import { TokenPayload, UserToken } from '../models/user-token.type';
 import { User } from '../models/user.type';
+import { UserEntity, UserEntityData } from '../repositories/user.entity';
 import { HashService } from './hash.service';
 import { TokenService } from './token.service';
-import { UserEntity, UserEntityData } from './user.entity';
 
 /**
  * Authentication service

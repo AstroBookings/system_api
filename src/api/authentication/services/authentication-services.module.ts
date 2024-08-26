@@ -1,11 +1,10 @@
-import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { SharedModule } from '../../../shared/shared.module';
+import { AuthenticationRepositoryModule } from '../repositories/authentication-repository.module';
 import { AuthenticationService } from './authentication.service';
 import { HashService } from './hash.service';
 import { TokenService } from './token.service';
-import { UserEntity } from './user.entity';
 
 const jwtConfig = {
   secret: 'secret',
@@ -17,7 +16,7 @@ const jwtConfig = {
  */
 @Module({
   imports: [
-    MikroOrmModule.forFeature([UserEntity]),
+    AuthenticationRepositoryModule,
     JwtModule.register(jwtConfig),
     SharedModule,
   ],

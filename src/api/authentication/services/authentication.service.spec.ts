@@ -5,36 +5,67 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { IdService } from '../../../shared/id.service';
 import { LoginDto } from '../models/login.dto';
 import { RegisterDto } from '../models/register.dto';
-import { UserToken } from '../models/user-token.type';
+import { TokenPayload, UserToken } from '../models/user-token.type';
+import { UserEntity, UserEntityData } from '../repositories/user.entity';
 import { AuthenticationService } from './authentication.service';
 import { HashService } from './hash.service';
 import { TokenService } from './token.service';
-import { UserEntity, UserEntityData } from './user.entity';
-
-// ToDo: fix error and failing test.
 
 describe('AuthenticationService', () => {
   let service: AuthenticationService;
-  let mockUserRepository: Partial<
+  let stubUserRepository: Partial<
     jest.Mocked<EntityRepository<UserEntityData>>
   >;
-  let mockTokenService: Partial<jest.Mocked<TokenService>>;
-  let mockHashService: Partial<jest.Mocked<HashService>>;
-  let mockIdService: Partial<jest.Mocked<IdService>>;
+  let stubTokenService: Partial<jest.Mocked<TokenService>>;
+  let stubHashService: Partial<jest.Mocked<HashService>>;
+  let stubIdService: Partial<jest.Mocked<IdService>>;
+  const stubId: string = '1';
+  const stubHashedPassword: string = 'hashed_password';
+  const stubToken: string = 'stub_token';
+  const stubIat: number = 1756074366;
+  const stubExp: number = 1756074366;
+  const stubTokenPayload: TokenPayload = {
+    sub: stubId,
+    iat: stubIat,
+    exp: stubExp,
+  };
+  const inputValidLoginDto: LoginDto = {
+    email: 'john.doe@test.dev',
+    password: 'Password@123',
+  };
+  const inputInvalidLoginDto: LoginDto = {
+    email: 'john.doe@test.dev',
+    password: 'WrongPassword@123',
+  };
+  const inputValidRegisterDto: RegisterDto = {
+    name: 'John Doe',
+    email: inputValidLoginDto.email,
+    password: inputValidLoginDto.password,
+    role: 'traveler',
+  };
+  const stubUserEntity: UserEntityData = {
+    id: stubId,
+    name: inputValidRegisterDto.name,
+    email: inputValidRegisterDto.email,
+    passwordHash: stubHashedPassword,
+    role: inputValidRegisterDto.role,
+  };
 
   beforeEach(async () => {
-    mockUserRepository = {
+    stubUserRepository = {
       findOne: jest.fn(),
       insert: jest.fn(),
     };
-    mockTokenService = {
+    stubTokenService = {
       generateToken: jest.fn(),
+      validateToken: jest.fn(),
+      decodeToken: jest.fn(),
     };
-    mockHashService = {
+    stubHashService = {
       hashText: jest.fn(),
       isValid: jest.fn(),
     };
-    mockIdService = {
+    stubIdService = {
       generateId: jest.fn(),
     };
 
@@ -42,19 +73,19 @@ describe('AuthenticationService', () => {
       providers: [
         {
           provide: getRepositoryToken(UserEntity),
-          useValue: mockUserRepository,
+          useValue: stubUserRepository,
         },
         {
           provide: TokenService,
-          useValue: mockTokenService,
+          useValue: stubTokenService,
         },
         {
           provide: HashService,
-          useValue: mockHashService,
+          useValue: stubHashService,
         },
         {
           provide: IdService,
-          useValue: mockIdService,
+          useValue: stubIdService,
         },
         AuthenticationService,
       ],
@@ -66,158 +97,116 @@ describe('AuthenticationService', () => {
   describe('register', () => {
     it('should register a user', async () => {
       // Arrange
-      const input_registerDto: RegisterDto = {
-        name: 'John Doe',
-        email: 'john.doe@test.dev',
-        password: 'Password@123',
-        role: 'traveler',
-      };
       const expected_result: UserToken = {
         user: {
-          id: '1',
-          name: input_registerDto.name,
-          email: input_registerDto.email,
-          role: input_registerDto.role,
+          id: stubId,
+          name: inputValidRegisterDto.name,
+          email: inputValidRegisterDto.email,
+          role: inputValidRegisterDto.role,
         },
-        token: 'mocked_token',
-        exp: 1756074366,
+        token: stubToken,
+        exp: stubExp,
       };
 
-      mockUserRepository.findOne.mockResolvedValue(null);
-      mockHashService.hashText.mockReturnValue('hashed_password');
-      mockIdService.generateId.mockReturnValue('1');
-      mockTokenService.generateToken.mockReturnValue('mocked_token');
+      stubUserRepository.findOne.mockResolvedValue(null);
+      stubHashService.hashText.mockReturnValue(stubHashedPassword);
+      stubIdService.generateId.mockReturnValue(stubId);
+      stubTokenService.generateToken.mockReturnValue(stubToken);
+      stubTokenService.decodeToken.mockReturnValue(stubTokenPayload);
 
       // Act
-      const actual_result: UserToken =
-        await service.register(input_registerDto);
+      const actual_result: UserToken = await service.register(
+        inputValidRegisterDto,
+      );
 
       // Assert
-      expect(mockUserRepository.findOne).toHaveBeenCalledWith({
-        email: input_registerDto.email,
+      expect(stubUserRepository.findOne).toHaveBeenCalledWith({
+        email: inputValidRegisterDto.email,
       });
-      expect(mockUserRepository.insert).toHaveBeenCalled();
-      expect(mockTokenService.generateToken).toHaveBeenCalledWith(
-        expected_result.user,
-      );
+      expect(stubUserRepository.insert).toHaveBeenCalled();
+      expect(stubTokenService.generateToken).toHaveBeenCalledWith(stubId);
       expect(actual_result).toEqual(expected_result);
     });
 
     it('should throw Exception if user already exists', async () => {
       // Arrange
-      const input_registerDto: RegisterDto = {
-        name: 'John Doe',
-        email: 'john.doe@test.dev',
-        password: 'Password@123',
-        role: 'traveler',
-      };
-      const userEntity: UserEntityData = {
-        id: '1',
-        name: input_registerDto.name,
-        email: input_registerDto.email,
-        passwordHash: 'hashed_password',
-        role: input_registerDto.role,
-      };
-      mockUserRepository.findOne.mockResolvedValue(userEntity);
+      stubUserRepository.findOne.mockResolvedValue(stubUserEntity);
 
       // Act & Assert
-      await expect(service.register(input_registerDto)).rejects.toThrow(
+      await expect(service.register(inputValidRegisterDto)).rejects.toThrow(
         ConflictException,
       );
+      expect(stubUserRepository.findOne).toHaveBeenCalledWith({
+        email: inputValidRegisterDto.email,
+      });
     });
   });
 
   describe('login', () => {
     it('should log in a user with correct credentials', async () => {
       // Arrange
-      const input_loginDto: LoginDto = {
-        email: 'john.doe@test.dev',
-        password: 'Password@123',
-      };
-      const userEntity: UserEntityData = {
-        id: '1',
-        name: 'John Doe',
-        email: input_loginDto.email,
-        passwordHash: 'hashed_password',
-        role: 'agency',
-      };
       const expected_result: UserToken = {
         user: {
-          id: userEntity.id,
-          name: userEntity.name,
-          email: userEntity.email,
-          role: userEntity.role,
+          id: stubUserEntity.id,
+          name: stubUserEntity.name,
+          email: stubUserEntity.email,
+          role: stubUserEntity.role,
         },
-        token: 'mocked_token',
-        exp: 1756074366,
+        token: stubToken,
+        exp: stubExp,
       };
 
-      mockUserRepository.findOne.mockResolvedValue(userEntity);
-      mockHashService.isValid.mockReturnValue(true);
-      mockTokenService.generateToken.mockReturnValue('mocked_token');
+      stubUserRepository.findOne.mockResolvedValue(stubUserEntity);
+      stubHashService.isValid.mockReturnValue(true);
+      stubTokenService.generateToken.mockReturnValue(stubToken);
+      stubTokenService.decodeToken.mockReturnValue(stubTokenPayload);
 
       // Act
-      const actual_result: UserToken = await service.login(input_loginDto);
+      const actual_result: UserToken = await service.login(inputValidLoginDto);
 
       // Assert
-      expect(mockUserRepository.findOne).toHaveBeenCalledWith({
-        email: input_loginDto.email,
+      expect(stubUserRepository.findOne).toHaveBeenCalledWith({
+        email: inputValidLoginDto.email,
       });
-      expect(mockHashService.isValid).toHaveBeenCalledWith(
-        input_loginDto.password,
-        userEntity.passwordHash,
+      expect(stubHashService.isValid).toHaveBeenCalledWith(
+        inputValidLoginDto.password,
+        stubUserEntity.passwordHash,
       );
-      expect(mockTokenService.generateToken).toHaveBeenCalledWith(
-        expected_result.user,
+      expect(stubTokenService.generateToken).toHaveBeenCalledWith(
+        stubUserEntity.id,
       );
       expect(actual_result).toEqual(expected_result);
     });
 
     it('should throw UnauthorizedException for invalid credentials', async () => {
       // Arrange
-      const input_loginDto: LoginDto = {
-        email: 'john.doe@test.dev',
-        password: 'WrongPassword@123',
-      };
-      const userEntity: UserEntityData = {
-        id: '1',
-        name: 'John Doe',
-        email: input_loginDto.email,
-        passwordHash: 'hashed_password',
-        role: 'traveler',
-      };
-
-      mockUserRepository.findOne.mockResolvedValue(userEntity);
-      mockHashService.isValid.mockReturnValue(false);
+      stubUserRepository.findOne.mockResolvedValue(stubUserEntity);
+      stubHashService.isValid.mockReturnValue(false);
 
       // Act & Assert
-      await expect(service.login(input_loginDto)).rejects.toThrow(
+      await expect(service.login(inputInvalidLoginDto)).rejects.toThrow(
         UnauthorizedException,
       );
-      expect(mockUserRepository.findOne).toHaveBeenCalledWith({
-        email: input_loginDto.email,
+      expect(stubUserRepository.findOne).toHaveBeenCalledWith({
+        email: inputInvalidLoginDto.email,
       });
-      expect(mockHashService.isValid).toHaveBeenCalledWith(
-        input_loginDto.password,
-        userEntity.passwordHash,
+      expect(stubHashService.isValid).toHaveBeenCalledWith(
+        inputInvalidLoginDto.password,
+        stubUserEntity.passwordHash,
       );
     });
 
     it('should throw UnauthorizedException if user is not found', async () => {
       // Arrange
-      const input_loginDto: LoginDto = {
-        email: 'non.existent@test.dev',
-        password: 'Password@123',
-      };
 
-      mockUserRepository.findOne.mockResolvedValue(null);
+      stubUserRepository.findOne.mockResolvedValue(null);
 
       // Act & Assert
-      await expect(service.login(input_loginDto)).rejects.toThrow(
+      await expect(service.login(inputInvalidLoginDto)).rejects.toThrow(
         UnauthorizedException,
       );
-      expect(mockUserRepository.findOne).toHaveBeenCalledWith({
-        email: input_loginDto.email,
+      expect(stubUserRepository.findOne).toHaveBeenCalledWith({
+        email: inputInvalidLoginDto.email,
       });
     });
   });
@@ -225,38 +214,42 @@ describe('AuthenticationService', () => {
   describe('validate', () => {
     it('should validate a token successfully', async () => {
       // Arrange
-      const input_token: string = 'valid_token';
-      const mockExpectedResult: UserToken = {
-        user: null,
-        token: 'mocked_token',
-        exp: 1756074366,
+      const inputToken: string = stubToken;
+      const expectedUserToken: UserToken = {
+        user: {
+          id: stubUserEntity.id,
+          name: stubUserEntity.name,
+          email: stubUserEntity.email,
+          role: stubUserEntity.role,
+        },
+        token: stubToken,
+        exp: stubExp,
       };
 
-      mockTokenService.validateToken = jest
-        .fn()
-        .mockReturnValue(mockExpectedResult);
+      stubTokenService.validateToken.mockReturnValue(stubTokenPayload);
+      stubUserRepository.findOne.mockResolvedValue(stubUserEntity);
 
       // Act
-      const result = await service.validate(input_token);
+      const actualUserToken: UserToken = await service.validate(inputToken);
 
       // Assert
-      expect(mockTokenService.validateToken).toHaveBeenCalledWith(input_token);
-      //expect(result).toEqual(mockExpectedResult);
+      expect(stubTokenService.validateToken).toHaveBeenCalledWith(inputToken);
+      expect(actualUserToken).toEqual(expectedUserToken);
     });
 
     it('should throw UnauthorizedException if token is invalid', async () => {
       // Arrange
-      const input_token: string = 'invalid_token';
+      const inputToken: string = stubToken;
 
-      mockTokenService.validateToken = jest.fn().mockImplementation(() => {
+      stubTokenService.validateToken = jest.fn().mockImplementation(() => {
         throw new UnauthorizedException('Invalid token');
       });
 
       // Act & Assert
-      await expect(service.validate(input_token)).rejects.toThrow(
+      await expect(service.validate(inputToken)).rejects.toThrow(
         UnauthorizedException,
       );
-      expect(mockTokenService.validateToken).toHaveBeenCalledWith(input_token);
+      expect(stubTokenService.validateToken).toHaveBeenCalledWith(inputToken);
     });
   });
 });
