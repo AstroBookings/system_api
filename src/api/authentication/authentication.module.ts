@@ -1,14 +1,14 @@
-import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { Module } from '@nestjs/common';
-import { SharedModule } from '../../shared/shared.module';
 import { AdminController } from './admin/admin.controller';
 import { AuthenticationController } from './authentication.controller';
-import { AuthenticationService } from './authentication.service';
-import { UserEntity } from './models/user.entity';
+import { AuthenticationServicesModule } from './services/authentication-services.module';
 
+/**
+ * Module for authentication-related functionality.
+ */
 @Module({
-  imports: [MikroOrmModule.forFeature([UserEntity]), SharedModule],
+  imports: [AuthenticationServicesModule],
   controllers: [AuthenticationController, AdminController],
-  providers: [AuthenticationService],
+  exports: [],
 })
 export class AuthenticationModule {}

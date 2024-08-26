@@ -2,15 +2,14 @@ import { EntityRepository } from '@mikro-orm/core';
 import { getRepositoryToken } from '@mikro-orm/nestjs';
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { HashService } from '../../shared/hash.service';
-import { IdService } from '../../shared/id.service';
-import { TokenService } from '../../shared/token.service';
+import { IdService } from '../../../shared/id.service';
+import { LoginDto } from '../models/login.dto';
+import { RegisterDto } from '../models/register.dto';
+import { UserToken } from '../models/user-token.type';
 import { AuthenticationService } from './authentication.service';
-import { LoginDto } from './models/login.dto';
-import { RegisterDto } from './models/register.dto';
-import { UserTokenPayload } from './models/user-token-payload.type';
-import { UserToken } from './models/user-token.type';
-import { UserEntity, UserEntityData } from './models/user.entity';
+import { HashService } from './hash.service';
+import { TokenService } from './token.service';
+import { UserEntity, UserEntityData } from './user.entity';
 
 // ToDo: fix error and failing test.
 
@@ -81,6 +80,7 @@ describe('AuthenticationService', () => {
           role: input_registerDto.role,
         },
         token: 'mocked_token',
+        exp: 1756074366,
       };
 
       mockUserRepository.findOne.mockResolvedValue(null);
@@ -149,6 +149,7 @@ describe('AuthenticationService', () => {
           role: userEntity.role,
         },
         token: 'mocked_token',
+        exp: 1756074366,
       };
 
       mockUserRepository.findOne.mockResolvedValue(userEntity);
@@ -225,13 +226,10 @@ describe('AuthenticationService', () => {
     it('should validate a token successfully', async () => {
       // Arrange
       const input_token: string = 'valid_token';
-      const mockExpectedResult: UserTokenPayload = {
+      const mockExpectedResult: UserToken = {
         user: null,
-        tokenPayload: {
-          sub: '1',
-          iat: 1724516766,
-          exp: 1756074366,
-        },
+        token: 'mocked_token',
+        exp: 1756074366,
       };
 
       mockTokenService.validateToken = jest

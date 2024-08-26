@@ -28,7 +28,9 @@ describe('Authentication Controller (e2e)', () => {
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .setLogger(console)
+      .compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();
@@ -99,7 +101,6 @@ describe('Authentication Controller (e2e)', () => {
     });
   });
 
-  // ToDo: Validate
   describe('Validate token', () => {
     beforeEach(async () => {
       await request(app.getHttpServer())
@@ -115,15 +116,15 @@ describe('Authentication Controller (e2e)', () => {
       const response = await request(app.getHttpServer())
         .post(`${endPoint}/login`)
         .send(inputLoginUser);
-      const inputToken = response.body.token;
+      const inputValidToken = response.body.token;
       await request(app.getHttpServer())
-        .get(`${endPoint}/validate/${inputToken}`)
+        .get(`${endPoint}/validate/${inputValidToken}`)
         .expect(200);
     });
     it('should return 401 if token is invalid', async () => {
-      const inputToken = 'invalid_token';
+      const inputInvalidToken = 'invalid_token';
       await request(app.getHttpServer())
-        .get(`${endPoint}/validate/${inputToken}`)
+        .get(`${endPoint}/validate/${inputInvalidToken}`)
         .expect(401);
     });
   });

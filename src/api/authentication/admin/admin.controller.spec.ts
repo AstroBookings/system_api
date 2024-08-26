@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthenticationService } from '../authentication.service';
 import { UserToken } from '../models/user-token.type';
+import { AuthenticationService } from '../services/authentication.service';
 import { AdminController } from './admin.controller';
 
 describe('AdminController', () => {

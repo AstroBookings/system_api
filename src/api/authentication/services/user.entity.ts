@@ -1,5 +1,10 @@
-import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
-import { Role } from './role.type';
+import {
+  Entity,
+  PrimaryKey,
+  Property,
+  SerializedPrimaryKey,
+} from '@mikro-orm/core';
+import { Role } from '../models/role.type';
 
 /**
  * User entity
@@ -9,14 +14,16 @@ import { Role } from './role.type';
 export class UserEntity {
   /**
    * MongoDB Primary key
+   * @description Do not use this _id, use the id instead
    */
   @PrimaryKey()
   _id: string;
 
   /**
-   * Unique id for a user, to be used as a reference
+   * Unique id for a user
+   * @description This is the id that will be used in the JWT token
    */
-  @Property()
+  @SerializedPrimaryKey()
   id: string;
 
   @Property()

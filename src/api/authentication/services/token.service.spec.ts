@@ -1,7 +1,7 @@
 import { JwtService } from '@nestjs/jwt';
 import { Test, TestingModule } from '@nestjs/testing';
-import { User } from '../api/authentication/models/user.type';
-import { SharedModule } from './shared.module';
+import { SharedModule } from '../../../shared/shared.module';
+import { User } from '../models/user.type';
 import { TokenService } from './token.service';
 
 describe('TokenService', () => {

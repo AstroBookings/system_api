@@ -1,11 +1,10 @@
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthenticationController } from './authentication.controller';
-import { AuthenticationService } from './authentication.service';
 import { LoginDto } from './models/login.dto';
 import { RegisterDto } from './models/register.dto';
-import { UserTokenPayload } from './models/user-token-payload.type';
 import { UserToken } from './models/user-token.type';
+import { AuthenticationService } from './services/authentication.service';
 
 describe('AuthenticationController', () => {
   let controller: AuthenticationController;
@@ -18,6 +17,7 @@ describe('AuthenticationController', () => {
       role: 'traveler',
     },
     token: 'mocked_jwt_token',
+    exp: 1756074366,
   };
   const mockExpiresAt = new Date();
   beforeEach(async () => {
@@ -36,15 +36,7 @@ describe('AuthenticationController', () => {
       }),
       validate: jest.fn(async (x) => {
         if (x == 'mocked_jwt_token') {
-          const validToken: UserTokenPayload = {
-            user: mockedUserToken.user,
-            tokenPayload: {
-              sub: '1',
-              iat: 1724516766,
-              exp: 1756074366,
-            },
-          };
-          return validToken;
+          return mockedUserToken;
         }
         throw new UnauthorizedException('Invalid token');
       }),
@@ -150,19 +142,11 @@ describe('AuthenticationController', () => {
       const token: string = 'mocked_jwt_token';
 
       // Act
-      const actual_result: UserTokenPayload = await controller.validate(token);
+      const actual_result: UserToken = await controller.validate(token);
 
       // Assert
       expect(mockedAuthService.validate).toHaveBeenCalledWith(token);
-      const expected_result: UserTokenPayload = {
-        user: mockedUserToken.user,
-        tokenPayload: {
-          sub: '1',
-          iat: 1724516766,
-          exp: 1756074366,
-        },
-      };
-      expect(actual_result).toEqual(expected_result);
+      expect(actual_result).toEqual(mockedUserToken);
     });
 
     it('should throw unauthorized exception when validating an invalid token', async () => {

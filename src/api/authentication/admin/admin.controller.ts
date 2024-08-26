@@ -1,6 +1,6 @@
 import { Controller, Delete, Get, Logger, Param } from '@nestjs/common';
-import { AuthenticationService } from '../authentication.service';
 import { User } from '../models/user.type';
+import { AuthenticationService } from '../services/authentication.service';
 
 /**
  * Auxiliary controller for the authentication module.
@@ -14,6 +14,12 @@ export class AdminController {
   constructor(private readonly authenticationService: AuthenticationService) {
     this.#logger.debug('🚀  initialized');
   }
+
+  @Get('test')
+  async test() {
+    return 'test';
+  }
+
   /**
    * Deletes a user by their email.
    * @param email - The email of the user to delete.
