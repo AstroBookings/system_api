@@ -5,6 +5,7 @@ import { AuthenticationModule } from './api/authentication/authentication.module
 import { UserEntity } from './api/authentication/repositories/user.entity';
 import { LoggerMiddleware } from './middleware/logger.middleware';
 
+// Configuration for MongoDB Database
 const mikroOrmConfig = {
   driver: MongoDriver,
   clientUrl: 'mongodb://localhost:27017',

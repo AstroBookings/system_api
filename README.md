@@ -10,9 +10,9 @@ Developed using **NestJS** with **TypeScript** for robust type checking, maintai
 
 ## Implemented domains
 
-- [x] [Authentication Domain](https://github.com/AstroBookings/.github/blob/main/profile/3-implementation/6_0-authentication.api.md)
-- [ ] [Data Synchronization Domain](https://github.com/AstroBookings/.github/blob/main/profile/3-implementation/6_5-synchronization.api.md)
-- [ ] [System Monitoring Domain](https://github.com/AstroBookings/.github/blob/main/profile/3-implementation/6_6-system-logs.api.md)
+- [x] [Authentication Domain API](https://github.com/AstroBookings/.github/blob/main/profile/3-implementation/6_0-authentication.api.md)
+- [ ] [Data Synchronization Domain API](https://github.com/AstroBookings/.github/blob/main/profile/3-implementation/6_5-synchronization.api.md)
+- [ ] [System Monitoring Domain API](https://github.com/AstroBookings/.github/blob/main/profile/3-implementation/6_6-system-logs.api.md)
 
 #### ⬇️ Consumes:
 
