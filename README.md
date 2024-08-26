@@ -4,9 +4,7 @@
 
 > 🧑‍💼 System API Handles, authorization, synchronization and system-wide logs operations
 
-- [0. Project Summary Briefing](https://github.com/AstroBookings/.github/blob/main/profile/0-project.briefing.md)
-
-Central API for authentication, authorization, and system-wide operations. It manages user sessions, handles access control, and provides interfaces for system monitoring and management.
+> 📋 [0. Project Summary Briefing](https://github.com/AstroBookings/.github/blob/main/profile/0-project.briefing.md)
 
 Developed using **NestJS** with **TypeScript** for robust type checking, maintainability, and scalable architecture.
 
