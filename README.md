@@ -10,7 +10,7 @@ Central API for authentication, authorization, and system-wide operations. It ma
 
 Developed using **NestJS** with **TypeScript** for robust type checking, maintainability, and scalable architecture.
 
-## Implementation domains
+## Implemented domains
 
 - [x] [Authentication Domain](https://github.com/AstroBookings/.github/blob/main/profile/3-implementation/6_0-authentication.api.md)
 - [ ] [Data Synchronization Domain](https://github.com/AstroBookings/.github/blob/main/profile/3-implementation/6_5-synchronization.api.md)
@@ -27,10 +27,46 @@ Developed using **NestJS** with **TypeScript** for robust type checking, maintai
 - All Web Applications: Authentication and authorization services
 - Other APIs: Central authentication and system management services
 
----
+## 📚 Instructions
+
+To **run** the project, follow these steps:
+
+```shell
+# clone the project
+git clone https://github.com/AstroBookings/system_api.git
+cd system_api
+# install the dependencies
+npm install
+# run the project
+npm run start
+# open at http://localhost:3000
+```
+
+To **test** the project, follow these steps:
+
+```shell
+# run the tests
+npm run test
+# run the tests in e2e mode
+npm run test:e2e
+```
+
+To **develop** the project, follow these steps:
+
+```shell
+# run the project in watch mode
+npm run start:dev
+# run the tests in watch mode
+npm run test:watch
+
+```
 
 ## [🚀 AstroBookings](https://github.com/AstroBookings)
 
 > [!NOTE]
 >
 > > _[Alberto Basalo](https://github.com/albertobasalo)_ >> _Elevating Code Quality._
+
+```
+
+```
