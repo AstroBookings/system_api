@@ -1,6 +1,8 @@
 # 🚀 AstroBookings : 🧑‍💼 System API
 
-> Sample project for teaching full-stack development with modern technology and proven best practices.
+> 🚀 AstroBookings is a sample project for teaching full-stack development with modern technology and proven best practices.
+
+> 🧑‍💼 System API Handles, authorization, synchronization and system-wide logs operations
 
 - [0. Project Summary Briefing](https://github.com/AstroBookings/.github/blob/main/profile/0-project.briefing.md)
 
@@ -11,6 +13,8 @@ Developed using **NestJS** with **TypeScript** for robust type checking, maintai
 ## Implementation domains
 
 - [x] [Authentication Domain](https://github.com/AstroBookings/.github/blob/main/profile/3-implementation/6_0-authentication.api.md)
+- [ ] [Data Synchronization Domain](https://github.com/AstroBookings/.github/blob/main/profile/3-implementation/6_5-synchronization.api.md)
+- [ ] [System Monitoring Domain](https://github.com/AstroBookings/.github/blob/main/profile/3-implementation/6_6-system-logs.api.md)
 
 #### ⬇️ Consumes:
 
