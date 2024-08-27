@@ -26,7 +26,7 @@ export class AuthenticationController {
   }
   @Get('test')
   async test() {
-    return 'test';
+    return '🚀 Authentication API is running!';
   }
   /**
    * Registers a new user.

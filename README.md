@@ -1,31 +1,39 @@
 # 🚀 AstroBookings : 🧑‍💼 System API
 
-> 🚀 AstroBookings is a sample project for teaching full-stack development with modern technology and proven best practices.
+## 🚀 AstroBookings
 
-> 🧑‍💼 System API Handles, authorization, synchronization and system-wide logs operations
+> A sample project for teaching full-stack development with modern technology and proven best practices.
 
 > 📋 [0. Project Summary Briefing](https://github.com/AstroBookings/.github/blob/main/profile/0-project.briefing.md)
 
-Developed using **NestJS** with **TypeScript** for robust type checking, maintainability, and scalable architecture.
+> 📋 [2. System Architecture](https://github.com/AstroBookings/.github/blob/main/profile/2-design/2-system.architecture.md)
 
-## Implemented domains
+> 📋 [3. Model ERD](https://github.com/AstroBookings/.github/blob/main/profile/2-design/3-model.erd.md)
 
-- [x] [Authentication Domain API](https://github.com/AstroBookings/.github/blob/main/profile/3-implementation/6_0-authentication.api.md)
-- [ ] [Data Synchronization Domain API](https://github.com/AstroBookings/.github/blob/main/profile/3-implementation/6_5-synchronization.api.md)
-- [ ] [System Monitoring Domain API](https://github.com/AstroBookings/.github/blob/main/profile/3-implementation/6_6-system-logs.api.md)
+## 🧑‍💼 System API
+
+Central API for authentication, authorization, and system-wide operations. It manages user sessions, handles access control, and provides interfaces for system monitoring and management.
+
+Developed using NestJS with TypeScript for robust type checking, maintainability, and scalable architecture.
+
+### Implemented domains
+
+- [x] [Authentication Domain API](./docs/6_0-authentication.api.md)
+- [ ] [Data Synchronization Domain API]()
+- [ ] [System Monitoring Domain API]()
 
 #### ⬇️ Consumes:
 
-- `📇 SystemDB`: For user authentication and system logs
-- `📇 OperationsDB`: For system-wide operational data
-- `📇 CacheDB`: For quick access to frequently used data
+- [`📇 SystemDB`](https://github.com/AstroBookings/.github/blob/main/profile/3-implementation/5_0-system.schema.md): For user authentication and system logs
+- [`📇 OperationsDB`](https://github.com/AstroBookings/.github/blob/main/profile/3-implementation/5_1-operations.schema.md): For system-wide operational data
+- [`📇 CacheDB`](https://github.com/AstroBookings/.github/blob/main/profile/3-implementation/5_2-cache.schema.md): For quick access to frequently used data
 
 #### ⬆️ Provides for:
 
 - All Web Applications: Authentication and authorization services
 - Other APIs: Central authentication and system management services
 
-## 📚 Instructions
+## 📚 Repository Instructions
 
 To **run** the project, follow these steps:
 
@@ -37,7 +45,7 @@ cd system_api
 npm install
 # run the project
 npm run start
-# open at http://localhost:3000
+# open at http://localhost:3000/authentication/test
 ```
 
 To **test** the project, follow these steps:
@@ -64,7 +72,3 @@ npm run test:watch
 > [!NOTE]
 >
 > > _[Alberto Basalo](https://github.com/albertobasalo)_ >> _Elevating Code Quality._
-
-```
-
-```
