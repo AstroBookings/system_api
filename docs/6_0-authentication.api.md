@@ -171,6 +171,7 @@ Those are the required DTOs for the API with `NestJs Validation` and `class-vali
 ```shell
 nest g class api/authentication/models/register.dto --flat --no-spec
 nest g class api/authentication/models/login.dto --flat --no-spec
+nest g class api/authentication/models/role.type --flat --no-spec
 nest g class api/authentication/models/token.type --flat --no-spec
 nest g class api/authentication/models/user.type --flat --no-spec
 nest g class api/authentication/models/valid-token.type --flat --no-spec
