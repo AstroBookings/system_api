@@ -6,21 +6,21 @@ import { AdminController } from './admin.controller';
 
 describe('AdminController', () => {
   let controller: AdminController;
-  let stubAuthService: Partial<jest.Mocked<AuthenticationService>>;
+  let mockAuthService: Partial<jest.Mocked<AuthenticationService>>;
 
-  const stubId: string = '1';
-  const stubToken: string = 'stub_jwt_token';
-  const stubExp: number = 1756074366;
-  const stubEmail = 'john.doe@test.dev';
-  const stubUser: User = {
-    id: stubId,
+  const mockId: string = '1';
+  const mockToken: string = 'mock_jwt_token';
+  const mockExp: number = 1756074366;
+  const mockEmail = 'john.doe@test.dev';
+  const mockUser: User = {
+    id: mockId,
     name: 'John Doe',
-    email: stubEmail,
+    email: mockEmail,
     role: 'traveler',
   };
 
   beforeEach(async () => {
-    stubAuthService = {
+    mockAuthService = {
       validate: jest.fn(),
       getById: jest.fn(),
       deleteUserByEmail: jest.fn(),
@@ -31,7 +31,7 @@ describe('AdminController', () => {
       providers: [
         {
           provide: AuthenticationService,
-          useValue: stubAuthService,
+          useValue: mockAuthService,
         },
       ],
     }).compile();
@@ -46,27 +46,27 @@ describe('AdminController', () => {
   describe('getUser', () => {
     it('should get a user by id successfully', async () => {
       // Arrange
-      stubAuthService.getById.mockResolvedValue(stubUser);
+      mockAuthService.getById.mockResolvedValue(mockUser);
 
       // Act
-      const actualResult: User = await controller.getUser(stubId);
+      const actualResult: User = await controller.getUser(mockId);
 
       // Assert
-      expect(stubAuthService.getById).toHaveBeenCalledWith(stubId);
-      expect(actualResult).toEqual(stubUser);
+      expect(mockAuthService.getById).toHaveBeenCalledWith(mockId);
+      expect(actualResult).toEqual(mockUser);
     });
 
     it('should throw NotFoundException when user is not found', async () => {
       // Arrange
-      stubAuthService.getById.mockRejectedValue(
-        new NotFoundException(`User with ID ${stubId} not found`),
+      mockAuthService.getById.mockRejectedValue(
+        new NotFoundException(`User with ID ${mockId} not found`),
       );
 
       // Act & Assert
-      await expect(controller.getUser(stubId)).rejects.toThrow(
+      await expect(controller.getUser(mockId)).rejects.toThrow(
         NotFoundException,
       );
-      expect(stubAuthService.getById).toHaveBeenCalledWith(stubId);
+      expect(mockAuthService.getById).toHaveBeenCalledWith(mockId);
     });
   });
 
@@ -74,25 +74,25 @@ describe('AdminController', () => {
     it('should delete a user by email successfully', async () => {
       // Arrange
 
-      stubAuthService.deleteUserByEmail.mockResolvedValue(undefined);
+      mockAuthService.deleteUserByEmail.mockResolvedValue(undefined);
 
       // Act
-      await controller.deleteUser(stubEmail);
+      await controller.deleteUser(mockEmail);
 
       // Assert
-      expect(stubAuthService.deleteUserByEmail).toHaveBeenCalledWith(stubEmail);
+      expect(mockAuthService.deleteUserByEmail).toHaveBeenCalledWith(mockEmail);
     });
 
     it('should not throw an error if user does not exist', async () => {
       // Arrange
       const inputInvalidEmail = 'nonexistent@test.dev';
-      stubAuthService.deleteUserByEmail.mockResolvedValue(undefined);
+      mockAuthService.deleteUserByEmail.mockResolvedValue(undefined);
 
       // Act & Assert
       await expect(
         controller.deleteUser(inputInvalidEmail),
       ).resolves.not.toThrow();
-      expect(stubAuthService.deleteUserByEmail).toHaveBeenCalledWith(
+      expect(mockAuthService.deleteUserByEmail).toHaveBeenCalledWith(
         inputInvalidEmail,
       );
     });

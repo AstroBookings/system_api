@@ -5,19 +5,19 @@ jest.mock('crypto');
 
 describe('HashService', () => {
   let hashService: HashService;
-  let stubCrypto: jest.Mocked<typeof crypto>;
+  let mockCrypto: jest.Mocked<typeof crypto>;
 
-  const stubPlainText: string = 'password123';
-  const stubHashedText: string = 'hashed_password123';
+  const mockPlainText: string = 'password123';
+  const mockHashedText: string = 'hashed_password123';
 
   beforeEach(async () => {
     const mockHashObject = {
       update: jest.fn().mockReturnThis(),
-      digest: jest.fn().mockReturnValue(stubHashedText),
+      digest: jest.fn().mockReturnValue(mockHashedText),
     };
 
-    stubCrypto = crypto as jest.Mocked<typeof crypto>;
-    stubCrypto.createHash.mockReturnValue(mockHashObject as any);
+    mockCrypto = crypto as jest.Mocked<typeof crypto>;
+    mockCrypto.createHash.mockReturnValue(mockHashObject as any);
 
     hashService = new HashService();
   });
@@ -29,25 +29,25 @@ describe('HashService', () => {
   describe('hashText', () => {
     it('should hash a given text', () => {
       // Arrange
-      const inputText = stubPlainText;
+      const inputText = mockPlainText;
 
       // Act
       const actualHash: string = hashService.hashText(inputText);
 
       // Assert
-      expect(stubCrypto.createHash).toHaveBeenCalledWith('sha256');
-      expect(actualHash).toBe(stubHashedText);
+      expect(mockCrypto.createHash).toHaveBeenCalledWith('sha256');
+      expect(actualHash).toBe(mockHashedText);
     });
 
     it('should produce different hashes for different inputs', () => {
       // Arrange
-      const inputText1 = stubPlainText;
+      const inputText1 = mockPlainText;
       const inputText2 = 'differentpassword';
-      stubCrypto.createHash.mockReturnValueOnce({
+      mockCrypto.createHash.mockReturnValueOnce({
         update: jest.fn().mockReturnThis(),
         digest: jest.fn().mockReturnValue('hash1'),
       } as any);
-      stubCrypto.createHash.mockReturnValueOnce({
+      mockCrypto.createHash.mockReturnValueOnce({
         update: jest.fn().mockReturnThis(),
         digest: jest.fn().mockReturnValue('hash2'),
       } as any);
@@ -64,8 +64,8 @@ describe('HashService', () => {
   describe('isValid', () => {
     it('should return true for matching text and hash', () => {
       // Arrange
-      const inputText = stubPlainText;
-      const inputHash = stubHashedText;
+      const inputText = mockPlainText;
+      const inputHash = mockHashedText;
 
       // Act
       const isValid: boolean = hashService.isValid(inputText, inputHash);
@@ -76,7 +76,7 @@ describe('HashService', () => {
 
     it('should return false for non-matching text and hash', () => {
       // Arrange
-      const inputText = stubPlainText;
+      const inputText = mockPlainText;
       const inputHash = 'different_hash';
 
       // Act

@@ -8,11 +8,11 @@ import { AuthenticationService } from './services/authentication.service';
 
 describe('AuthenticationController', () => {
   let controller: AuthenticationController;
-  let stubAuthService: Partial<jest.Mocked<AuthenticationService>>;
+  let mockAuthService: Partial<jest.Mocked<AuthenticationService>>;
 
-  const stubId: string = '1';
-  const stubToken: string = 'stub_jwt_token';
-  const stubExp: number = 1756074366;
+  const mockId: string = '1';
+  const mockToken: string = 'mock_jwt_token';
+  const mockExp: number = 1756074366;
   const inputValidLoginDto: LoginDto = {
     email: 'john.doe@test.dev',
     password: 'Password@123',
@@ -23,19 +23,19 @@ describe('AuthenticationController', () => {
     password: inputValidLoginDto.password,
     role: 'traveler',
   };
-  const stubUserToken: UserToken = {
+  const mockUserToken: UserToken = {
     user: {
-      id: stubId,
+      id: mockId,
       name: inputValidRegisterDto.name,
       email: inputValidRegisterDto.email,
       role: inputValidRegisterDto.role,
     },
-    token: stubToken,
-    exp: stubExp,
+    token: mockToken,
+    exp: mockExp,
   };
 
   beforeEach(async () => {
-    stubAuthService = {
+    mockAuthService = {
       register: jest.fn(),
       login: jest.fn(),
       validate: jest.fn(),
@@ -46,7 +46,7 @@ describe('AuthenticationController', () => {
       providers: [
         {
           provide: AuthenticationService,
-          useValue: stubAuthService,
+          useValue: mockAuthService,
         },
       ],
     }).compile();
@@ -57,7 +57,7 @@ describe('AuthenticationController', () => {
   describe('register', () => {
     it('should register a new user successfully', async () => {
       // Arrange
-      stubAuthService.register.mockResolvedValue(stubUserToken);
+      mockAuthService.register.mockResolvedValue(mockUserToken);
 
       // Act
       const actualResult: UserToken = await controller.register(
@@ -65,15 +65,15 @@ describe('AuthenticationController', () => {
       );
 
       // Assert
-      expect(stubAuthService.register).toHaveBeenCalledWith(
+      expect(mockAuthService.register).toHaveBeenCalledWith(
         inputValidRegisterDto,
       );
-      expect(actualResult).toEqual(stubUserToken);
+      expect(actualResult).toEqual(mockUserToken);
     });
 
     it('should throw conflict exception when registering with an existing email', async () => {
       // Arrange
-      stubAuthService.register.mockRejectedValue(
+      mockAuthService.register.mockRejectedValue(
         new ConflictException('Email already in use'),
       );
 
@@ -81,7 +81,7 @@ describe('AuthenticationController', () => {
       await expect(controller.register(inputValidRegisterDto)).rejects.toThrow(
         ConflictException,
       );
-      expect(stubAuthService.register).toHaveBeenCalledWith(
+      expect(mockAuthService.register).toHaveBeenCalledWith(
         inputValidRegisterDto,
       );
     });
@@ -90,20 +90,20 @@ describe('AuthenticationController', () => {
   describe('login', () => {
     it('should login a user successfully', async () => {
       // Arrange
-      stubAuthService.login.mockResolvedValue(stubUserToken);
+      mockAuthService.login.mockResolvedValue(mockUserToken);
 
       // Act
       const actualResult: UserToken =
         await controller.login(inputValidLoginDto);
 
       // Assert
-      expect(stubAuthService.login).toHaveBeenCalledWith(inputValidLoginDto);
-      expect(actualResult).toEqual(stubUserToken);
+      expect(mockAuthService.login).toHaveBeenCalledWith(inputValidLoginDto);
+      expect(actualResult).toEqual(mockUserToken);
     });
 
     it('should throw unauthorized exception when logging in with invalid credentials', async () => {
       // Arrange
-      stubAuthService.login.mockRejectedValue(
+      mockAuthService.login.mockRejectedValue(
         new UnauthorizedException('Invalid credentials'),
       );
 
@@ -111,34 +111,34 @@ describe('AuthenticationController', () => {
       await expect(controller.login(inputValidLoginDto)).rejects.toThrow(
         UnauthorizedException,
       );
-      expect(stubAuthService.login).toHaveBeenCalledWith(inputValidLoginDto);
+      expect(mockAuthService.login).toHaveBeenCalledWith(inputValidLoginDto);
     });
   });
 
   describe('validate', () => {
     it('should validate a token successfully', async () => {
       // Arrange
-      stubAuthService.validate.mockResolvedValue(stubUserToken);
+      mockAuthService.validate.mockResolvedValue(mockUserToken);
 
       // Act
-      const actualResult: UserToken = await controller.validate(stubToken);
+      const actualResult: UserToken = await controller.validate(mockToken);
 
       // Assert
-      expect(stubAuthService.validate).toHaveBeenCalledWith(stubToken);
-      expect(actualResult).toEqual(stubUserToken);
+      expect(mockAuthService.validate).toHaveBeenCalledWith(mockToken);
+      expect(actualResult).toEqual(mockUserToken);
     });
 
     it('should throw unauthorized exception when validating an invalid token', async () => {
       // Arrange
-      stubAuthService.validate.mockRejectedValue(
+      mockAuthService.validate.mockRejectedValue(
         new UnauthorizedException('Invalid token'),
       );
 
       // Act & Assert
-      await expect(controller.validate(stubToken)).rejects.toThrow(
+      await expect(controller.validate(mockToken)).rejects.toThrow(
         UnauthorizedException,
       );
-      expect(stubAuthService.validate).toHaveBeenCalledWith(stubToken);
+      expect(mockAuthService.validate).toHaveBeenCalledWith(mockToken);
     });
   });
 });

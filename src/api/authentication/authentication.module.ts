@@ -9,6 +9,5 @@ import { AuthenticationServicesModule } from './services/authentication-services
 @Module({
   imports: [AuthenticationServicesModule],
   controllers: [AuthenticationController, AdminController],
-  exports: [],
 })
 export class AuthenticationModule {}

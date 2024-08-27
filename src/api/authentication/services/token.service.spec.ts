@@ -5,19 +5,19 @@ import { TokenService } from './token.service';
 
 describe('TokenService', () => {
   let tokenService: TokenService;
-  let stubJwtService: Partial<jest.Mocked<JwtService>>;
+  let mockJwtService: Partial<jest.Mocked<JwtService>>;
 
-  const stubId: string = '1';
-  const stubToken: string = 'stub_token';
-  const stubIat: number = 1756074366;
-  const stubExp: number = 1756074366;
-  const stubTokenPayload = {
-    sub: stubId,
-    iat: stubIat,
-    exp: stubExp,
+  const mockId: string = '1';
+  const mockToken: string = 'mock_token';
+  const mockIat: number = 1756074366;
+  const mockExp: number = 1756074366;
+  const mockTokenPayload = {
+    sub: mockId,
+    iat: mockIat,
+    exp: mockExp,
   };
-  const stubUser: User = {
-    id: stubId,
+  const mockUser: User = {
+    id: mockId,
     name: 'John Doe',
     email: 'john.doe@test.dev',
     role: 'traveler',
@@ -29,7 +29,7 @@ describe('TokenService', () => {
   };
 
   beforeEach(async () => {
-    stubJwtService = {
+    mockJwtService = {
       sign: jest.fn(),
       verify: jest.fn(),
       decode: jest.fn(),
@@ -41,7 +41,7 @@ describe('TokenService', () => {
         TokenService,
         {
           provide: JwtService,
-          useValue: stubJwtService,
+          useValue: mockJwtService,
         },
       ],
     }).compile();
@@ -56,54 +56,54 @@ describe('TokenService', () => {
   describe('generateToken', () => {
     it('should generate a token', () => {
       // Arrange
-      stubJwtService.sign.mockReturnValue(stubToken);
-      stubJwtService.verify.mockReturnValue(stubTokenPayload);
+      mockJwtService.sign.mockReturnValue(mockToken);
+      mockJwtService.verify.mockReturnValue(mockTokenPayload);
 
       // Act
-      const actualToken: string = tokenService.generateToken(stubUser.id);
+      const actualToken: string = tokenService.generateToken(mockUser.id);
 
       // Assert
-      expect(stubJwtService.sign).toHaveBeenCalledWith({ sub: stubUser.id });
-      expect(actualToken).toBe(stubToken);
-      const actualDecoded = stubJwtService.verify(actualToken);
-      expect(actualDecoded).toEqual(stubTokenPayload);
-      expect(actualDecoded.sub).toBe(stubUser.id);
+      expect(mockJwtService.sign).toHaveBeenCalledWith({ sub: mockUser.id });
+      expect(actualToken).toBe(mockToken);
+      const actualDecoded = mockJwtService.verify(actualToken);
+      expect(actualDecoded).toEqual(mockTokenPayload);
+      expect(actualDecoded.sub).toBe(mockUser.id);
     });
   });
 
   describe('validateToken', () => {
     it('should validate a token', () => {
       // Arrange
-      stubJwtService.verify.mockReturnValue(stubTokenPayload);
+      mockJwtService.verify.mockReturnValue(mockTokenPayload);
 
       // Act
-      const actualSub: string = tokenService.validateToken(stubToken).sub;
+      const actualSub: string = tokenService.validateToken(mockToken).sub;
 
       // Assert
-      expect(actualSub).toEqual(stubTokenPayload.sub);
+      expect(actualSub).toEqual(mockTokenPayload.sub);
     });
 
     it('should throw an error if the token is invalid', () => {
       // Arrange
-      stubJwtService.verify.mockImplementation(() => {
+      mockJwtService.verify.mockImplementation(() => {
         throw new Error('Invalid token');
       });
 
       // Act
-      expect(() => tokenService.validateToken(stubToken)).toThrow();
+      expect(() => tokenService.validateToken(mockToken)).toThrow();
     });
   });
 
   describe('decodeToken', () => {
     it('should decode a token', () => {
       // Arrange
-      stubJwtService.decode.mockReturnValue(stubTokenPayload);
+      mockJwtService.decode.mockReturnValue(mockTokenPayload);
 
       // Act
-      const actualSub: string = tokenService.decodeToken(stubToken).sub;
+      const actualSub: string = tokenService.decodeToken(mockToken).sub;
 
       // Assert
-      expect(actualSub).toEqual(stubTokenPayload.sub);
+      expect(actualSub).toEqual(mockTokenPayload.sub);
     });
   });
 });
