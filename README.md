@@ -1,6 +1,6 @@
 # 🚀 AstroBookings : 🧑‍💼 System API
 
-## 🚀 AstroBookings
+## [🚀 AstroBookings](https://github.com/AstroBookings)
 
 > A sample project for teaching full-stack development with modern technology and proven best practices.
 
@@ -19,8 +19,8 @@ Developed using NestJS with TypeScript for robust type checking, maintainability
 ### Implemented domains
 
 - [x] [Authentication Domain API](./docs/6_0-authentication.api.md)
-- [ ] [Data Synchronization Domain API]()
-- [ ] [System Monitoring Domain API]()
+- [ ] Data Synchronization Domain API
+- [ ] System Monitoring Domain API
 
 #### ⬇️ Consumes:
 
@@ -66,6 +66,8 @@ npm run start:dev
 npm run test:watch
 
 ```
+
+---
 
 ## [🚀 AstroBookings](https://github.com/AstroBookings)
 

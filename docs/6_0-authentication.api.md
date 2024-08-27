@@ -2,6 +2,10 @@
 
 > This document describes the implementation details for the `0. Authentication` domain of the AstroBookings project at the `🧑‍💼 SystemAPI` level.
 
+- [📋 Authentication Domain](https://github.com/AstroBookings/.github/blob/main/profile/2-design/4_0-authentication.domain.md)
+
+- [🧑‍💼 System API](https://github.com/AstroBookings/system_api/)
+
 ## Features and scenarios
 
 ### 0.1 Register an account
@@ -174,9 +178,15 @@ nest g class api/authentication/models/user-token.type --flat --no-spec
 ```
 
 ```typescript
-import { IsEmail, IsNotEmpty, IsString, MinLength, IsEnum } from "class-validator";
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  MinLength,
+  IsEnum,
+} from 'class-validator';
 
-export type Role = "traveler" | "agency" | "financial" | "it";
+export type Role = 'traveler' | 'agency' | 'financial' | 'it';
 
 export class RegisterDto {
   @IsString()
@@ -191,7 +201,7 @@ export class RegisterDto {
   password: string;
 
   @IsString()
-  @IsEnum(["traveler", "agency", "financial", "it"])
+  @IsEnum(['traveler', 'agency', 'financial', 'it'])
   role: Role;
 }
 
@@ -246,7 +256,7 @@ nest g class authentication/services/user.entity --flat --no-spec
  * User entity
  * @description Entity for read/write on users collection
  */
-@Entity({ collection: "users" })
+@Entity({ collection: 'users' })
 export class UserEntity {
   /**
    * MongoDB Primary key
@@ -266,10 +276,10 @@ export class UserEntity {
   @Property({ unique: true })
   email: string;
 
-  @Property({ fieldName: "password_hash" })
+  @Property({ fieldName: 'password_hash' })
   passwordHash: string;
 
-  @Property({ type: "text" })
+  @Property({ type: 'text' })
   role: Role;
 }
 
@@ -277,5 +287,13 @@ export class UserEntity {
  * User entity data type
  * @description Without the MongoDB primary key
  */
-export type UserEntityData = Omit<UserEntity, "_id">;
+export type UserEntityData = Omit<UserEntity, '_id'>;
 ```
+
+---
+
+## [🚀 AstroBookings](https://github.com/AstroBookings)
+
+> [!NOTE]
+>
+> > _[Alberto Basalo](https://github.com/albertobasalo)_ >> _Elevating Code Quality._
