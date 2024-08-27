@@ -6,7 +6,7 @@
 
 - [🧑‍💼 System API](https://github.com/AstroBookings/system_api/)
 
-## Features and scenarios
+## 📋 Features and scenarios
 
 ### 0.1 Register an account
 
@@ -115,7 +115,7 @@ Feature: JWT Validation
     And the response should contain an error message "Invalid token"
 ```
 
-## NestJs Implementation
+## 🧑‍💻 NestJs Implementation
 
 ### Project 🧑‍💼 SystemAPI setup
 
@@ -164,7 +164,7 @@ nest g module api/authentication/services/authentication-services --flat
 nest g service api/authentication/services/authentication --flat
 ```
 
-## Data Model for DTOs
+## 📇 Data Model for DTOs
 
 Those are the required DTOs for the API with `NestJs Validation` and `class-validator`:
 
@@ -238,7 +238,7 @@ export type UserTokenPayload = {
 };
 ```
 
-## Data Model for Entities
+## 📇 Data Model for Entities
 
 Those are the required entities for the API with `TypeORM` interacting with the **MongoDB** database `📇 SystemDB`:
 
