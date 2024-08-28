@@ -5,9 +5,7 @@ import { AllExceptionsFilter } from './middleware/all-exceptions.filter';
 
 const nodeEnv = process.env.NODE_ENV;
 const loggerLevel: LogLevel[] =
-  nodeEnv === 'production'
-    ? ['error', 'warn', 'log']
-    : ['error', 'warn', 'log', 'debug', 'verbose'];
+  nodeEnv === 'production' ? ['error', 'warn', 'log'] : ['error', 'warn', 'log', 'debug', 'verbose'];
 const validationPipeOptions = {
   forbidNonWhitelisted: true,
 };

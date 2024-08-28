@@ -13,9 +13,7 @@ import { UserEntity, UserEntityData } from './user.entity';
 
 describe('AuthenticationService', () => {
   let service: AuthenticationService;
-  let mockUserRepository: Partial<
-    jest.Mocked<EntityRepository<UserEntityData>>
-  >;
+  let mockUserRepository: Partial<jest.Mocked<EntityRepository<UserEntityData>>>;
   let mockTokenService: Partial<jest.Mocked<TokenService>>;
   let mockHashService: Partial<jest.Mocked<HashService>>;
   let mockIdService: Partial<jest.Mocked<IdService>>;
@@ -115,9 +113,7 @@ describe('AuthenticationService', () => {
       mockTokenService.decodeToken.mockReturnValue(mockTokenPayload);
 
       // Act
-      const actual_result: UserToken = await service.register(
-        inputValidRegisterDto,
-      );
+      const actual_result: UserToken = await service.register(inputValidRegisterDto);
 
       // Assert
       expect(mockUserRepository.findOne).toHaveBeenCalledWith({
@@ -133,9 +129,7 @@ describe('AuthenticationService', () => {
       mockUserRepository.findOne.mockResolvedValue(mockUserEntity);
 
       // Act & Assert
-      await expect(service.register(inputValidRegisterDto)).rejects.toThrow(
-        ConflictException,
-      );
+      await expect(service.register(inputValidRegisterDto)).rejects.toThrow(ConflictException);
       expect(mockUserRepository.findOne).toHaveBeenCalledWith({
         email: inputValidRegisterDto.email,
       });
@@ -168,13 +162,8 @@ describe('AuthenticationService', () => {
       expect(mockUserRepository.findOne).toHaveBeenCalledWith({
         email: inputValidLoginDto.email,
       });
-      expect(mockHashService.isValid).toHaveBeenCalledWith(
-        inputValidLoginDto.password,
-        mockUserEntity.passwordHash,
-      );
-      expect(mockTokenService.generateToken).toHaveBeenCalledWith(
-        mockUserEntity.id,
-      );
+      expect(mockHashService.isValid).toHaveBeenCalledWith(inputValidLoginDto.password, mockUserEntity.passwordHash);
+      expect(mockTokenService.generateToken).toHaveBeenCalledWith(mockUserEntity.id);
       expect(actual_result).toEqual(expected_result);
     });
 
@@ -184,16 +173,11 @@ describe('AuthenticationService', () => {
       mockHashService.isValid.mockReturnValue(false);
 
       // Act & Assert
-      await expect(service.login(inputInvalidLoginDto)).rejects.toThrow(
-        UnauthorizedException,
-      );
+      await expect(service.login(inputInvalidLoginDto)).rejects.toThrow(UnauthorizedException);
       expect(mockUserRepository.findOne).toHaveBeenCalledWith({
         email: inputInvalidLoginDto.email,
       });
-      expect(mockHashService.isValid).toHaveBeenCalledWith(
-        inputInvalidLoginDto.password,
-        mockUserEntity.passwordHash,
-      );
+      expect(mockHashService.isValid).toHaveBeenCalledWith(inputInvalidLoginDto.password, mockUserEntity.passwordHash);
     });
 
     it('should throw UnauthorizedException if user is not found', async () => {
@@ -202,9 +186,7 @@ describe('AuthenticationService', () => {
       mockUserRepository.findOne.mockResolvedValue(null);
 
       // Act & Assert
-      await expect(service.login(inputInvalidLoginDto)).rejects.toThrow(
-        UnauthorizedException,
-      );
+      await expect(service.login(inputInvalidLoginDto)).rejects.toThrow(UnauthorizedException);
       expect(mockUserRepository.findOne).toHaveBeenCalledWith({
         email: inputInvalidLoginDto.email,
       });
@@ -246,9 +228,7 @@ describe('AuthenticationService', () => {
       });
 
       // Act & Assert
-      await expect(service.validate(inputToken)).rejects.toThrow(
-        UnauthorizedException,
-      );
+      await expect(service.validate(inputToken)).rejects.toThrow(UnauthorizedException);
       expect(mockTokenService.validateToken).toHaveBeenCalledWith(inputToken);
     });
   });

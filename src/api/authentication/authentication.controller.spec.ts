@@ -60,30 +60,20 @@ describe('AuthenticationController', () => {
       mockAuthService.register.mockResolvedValue(mockUserToken);
 
       // Act
-      const actualResult: UserToken = await controller.register(
-        inputValidRegisterDto,
-      );
+      const actualResult: UserToken = await controller.register(inputValidRegisterDto);
 
       // Assert
-      expect(mockAuthService.register).toHaveBeenCalledWith(
-        inputValidRegisterDto,
-      );
+      expect(mockAuthService.register).toHaveBeenCalledWith(inputValidRegisterDto);
       expect(actualResult).toEqual(mockUserToken);
     });
 
     it('should throw conflict exception when registering with an existing email', async () => {
       // Arrange
-      mockAuthService.register.mockRejectedValue(
-        new ConflictException('Email already in use'),
-      );
+      mockAuthService.register.mockRejectedValue(new ConflictException('Email already in use'));
 
       // Act & Assert
-      await expect(controller.register(inputValidRegisterDto)).rejects.toThrow(
-        ConflictException,
-      );
-      expect(mockAuthService.register).toHaveBeenCalledWith(
-        inputValidRegisterDto,
-      );
+      await expect(controller.register(inputValidRegisterDto)).rejects.toThrow(ConflictException);
+      expect(mockAuthService.register).toHaveBeenCalledWith(inputValidRegisterDto);
     });
   });
 
@@ -93,8 +83,7 @@ describe('AuthenticationController', () => {
       mockAuthService.login.mockResolvedValue(mockUserToken);
 
       // Act
-      const actualResult: UserToken =
-        await controller.login(inputValidLoginDto);
+      const actualResult: UserToken = await controller.login(inputValidLoginDto);
 
       // Assert
       expect(mockAuthService.login).toHaveBeenCalledWith(inputValidLoginDto);
@@ -103,14 +92,10 @@ describe('AuthenticationController', () => {
 
     it('should throw unauthorized exception when logging in with invalid credentials', async () => {
       // Arrange
-      mockAuthService.login.mockRejectedValue(
-        new UnauthorizedException('Invalid credentials'),
-      );
+      mockAuthService.login.mockRejectedValue(new UnauthorizedException('Invalid credentials'));
 
       // Act & Assert
-      await expect(controller.login(inputValidLoginDto)).rejects.toThrow(
-        UnauthorizedException,
-      );
+      await expect(controller.login(inputValidLoginDto)).rejects.toThrow(UnauthorizedException);
       expect(mockAuthService.login).toHaveBeenCalledWith(inputValidLoginDto);
     });
   });
@@ -130,14 +115,10 @@ describe('AuthenticationController', () => {
 
     it('should throw unauthorized exception when validating an invalid token', async () => {
       // Arrange
-      mockAuthService.validate.mockRejectedValue(
-        new UnauthorizedException('Invalid token'),
-      );
+      mockAuthService.validate.mockRejectedValue(new UnauthorizedException('Invalid token'));
 
       // Act & Assert
-      await expect(controller.validate(mockToken)).rejects.toThrow(
-        UnauthorizedException,
-      );
+      await expect(controller.validate(mockToken)).rejects.toThrow(UnauthorizedException);
       expect(mockAuthService.validate).toHaveBeenCalledWith(mockToken);
     });
   });

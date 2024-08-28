@@ -58,14 +58,10 @@ describe('AdminController', () => {
 
     it('should throw NotFoundException when user is not found', async () => {
       // Arrange
-      mockAuthService.getById.mockRejectedValue(
-        new NotFoundException(`User with ID ${mockId} not found`),
-      );
+      mockAuthService.getById.mockRejectedValue(new NotFoundException(`User with ID ${mockId} not found`));
 
       // Act & Assert
-      await expect(controller.getUser(mockId)).rejects.toThrow(
-        NotFoundException,
-      );
+      await expect(controller.getUser(mockId)).rejects.toThrow(NotFoundException);
       expect(mockAuthService.getById).toHaveBeenCalledWith(mockId);
     });
   });
@@ -89,12 +85,8 @@ describe('AdminController', () => {
       mockAuthService.deleteUserByEmail.mockResolvedValue(undefined);
 
       // Act & Assert
-      await expect(
-        controller.deleteUser(inputInvalidEmail),
-      ).resolves.not.toThrow();
-      expect(mockAuthService.deleteUserByEmail).toHaveBeenCalledWith(
-        inputInvalidEmail,
-      );
+      await expect(controller.deleteUser(inputInvalidEmail)).resolves.not.toThrow();
+      expect(mockAuthService.deleteUserByEmail).toHaveBeenCalledWith(inputInvalidEmail);
     });
   });
 });

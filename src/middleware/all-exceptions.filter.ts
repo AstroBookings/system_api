@@ -1,11 +1,4 @@
-import {
-  ArgumentsHost,
-  Catch,
-  ExceptionFilter,
-  HttpException,
-  HttpStatus,
-  Logger,
-} from '@nestjs/common';
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, Logger } from '@nestjs/common';
 
 import { Request, Response } from 'express';
 
@@ -28,9 +21,7 @@ const errorMessages = {
 };
 
 @Catch(HttpException)
-export class AllExceptionsFilter<T extends HttpException>
-  implements ExceptionFilter
-{
+export class AllExceptionsFilter<T extends HttpException> implements ExceptionFilter {
   private readonly logger = new Logger();
 
   /**

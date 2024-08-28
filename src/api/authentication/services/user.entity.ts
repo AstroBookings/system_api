@@ -1,9 +1,4 @@
-import {
-  Entity,
-  PrimaryKey,
-  Property,
-  SerializedPrimaryKey,
-} from '@mikro-orm/core';
+import { Entity, PrimaryKey, Property, SerializedPrimaryKey } from '@mikro-orm/core';
 import { Role } from '../models/role.type';
 
 /**
