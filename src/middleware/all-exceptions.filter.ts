@@ -1,66 +1,62 @@
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, Logger } from '@nestjs/common';
-
 import { Request, Response } from 'express';
 
-//import { nodeEnv } from '@common/constant/constant';
-
-export interface CustomExceptionResponse {
-  statusCode: number;
-  message: string;
-  error: string;
-}
-const errorMessages = {
-  ERR0000: {
-    code: 'ERR0000',
-    message: 'Something went wrong. Please try again.',
-  },
-  ERR0001: {
-    code: 'ERR0001',
-    message: 'Access denied..!',
-  },
+type HttpContext = {
+  request: Request;
+  response: Response;
 };
 
+type source = {
+  method: string;
+  originalUrl: string;
+};
+
+/**
+ * Filter that catches all exceptions thrown in the application.
+ * It logs the error and sends a formatted response to the client.
+ */
 @Catch(HttpException)
 export class AllExceptionsFilter<T extends HttpException> implements ExceptionFilter {
-  private readonly logger = new Logger();
+  #logger: Logger = new Logger(AllExceptionsFilter.name);
 
   /**
-   * @description This method catches the exception and logs it to the console.
+   * Catches the exception and processes it.
    * @param exception - The exception to catch.
    * @param host - The host to catch the exception.
    */
-  catch(exception: T, host: ArgumentsHost) {
+  catch(exception: T, host: ArgumentsHost): void {
+    const ctx: HttpContext = this.#getHttpContext(host);
+    const status: number = this.#getStatus(exception);
+    this.#logError(exception, ctx.request);
+    this.#sendResponse(ctx.response, status, exception);
+  }
+
+  #getHttpContext(host: ArgumentsHost): HttpContext {
     const ctx = host.switchToHttp();
-    const request = ctx.getRequest<Request>();
-    this.#logError(exception, request);
-    const response = ctx.getResponse<Response>();
-    const status = this.#getStatus(exception);
-    this.#sendResponse(response, status, exception);
+    return {
+      request: ctx.getRequest<Request>(),
+      response: ctx.getResponse<Response>(),
+    };
   }
 
   #getStatus(exception: T): number {
     if (exception instanceof HttpException) {
       return exception.getStatus();
     }
-    /* else if (exception instanceof EntityNotFoundError) {
-      return HttpStatus.NOT_FOUND;
-    } else if (exception instanceof TypeORMError) {
-      return HttpStatus.BAD_REQUEST;
-    } */
     return HttpStatus.INTERNAL_SERVER_ERROR;
   }
 
-  #logError(exception: T, request: Request) {
-    const { method, originalUrl, query, headers, params, body } = request;
-    this.logger.error(`👽 ${method}:- ${originalUrl}`, `AllExceptionFilter`);
-    const nodeEnv = process.env.NODE_ENV;
+  #logError(exception: T, request: Request): void {
+    const { method, originalUrl }: source = request;
+    this.#logger.error(`👽 ${method}:- ${originalUrl}`, AllExceptionsFilter.name);
+    const nodeEnv: string | undefined = process.env.NODE_ENV;
     if (nodeEnv !== 'production') {
-      this.logger.debug(JSON.stringify(exception), `AllExceptionFilter`);
+      this.#logger.debug(JSON.stringify(exception), AllExceptionsFilter.name);
     }
   }
 
-  #sendResponse(response: Response, status: number, exception: T) {
-    const message = exception.message;
+  #sendResponse(response: Response, status: number, exception: T): void {
+    const message: string = exception.message;
     response.status(status).json({ message });
   }
 }
