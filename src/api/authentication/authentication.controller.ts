@@ -9,7 +9,7 @@ import { AuthenticationService } from './services/authentication.service';
  * @description Endpoints for registering and deleting users
  * @requires AuthenticationService for logic and database access
  */
-@Controller('authentication')
+@Controller('api/authentication')
 export class AuthenticationController {
   readonly #logger = new Logger(AuthenticationController.name);
 
