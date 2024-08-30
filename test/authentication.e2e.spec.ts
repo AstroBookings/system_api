@@ -32,11 +32,8 @@ describe('Authentication Controller (e2e)', () => {
     })
       .setLogger(console)
       .compile();
-
     app = moduleFixture.createNestApplication();
     await app.init();
-
-    // Regenerate the database before running the tests
     console.warn('⚠️  Regenerating database before running the tests ⚠️');
     await request(app.getHttpServer()).post('/api/admin/regenerate-db').expect(200);
   });
@@ -48,16 +45,14 @@ describe('Authentication Controller (e2e)', () => {
   describe('Register a new user', () => {
     beforeEach(async () => {
       const deleteUrl = `${endPoint}/admin/${inputRegisterUser.email}`;
-      console.warn(`😨  Deleting user at: ${deleteUrl}`);
+      console.warn(`⚠️  Deleting user at: ${deleteUrl} before running register test`);
       await request(app.getHttpServer()).delete(deleteUrl);
     });
     it('should pass', async () => {
       expect(true).toBe(true);
     });
-
     it('should return 201 and a token if user is created', async () => {
       const registerUrl = `${endPoint}/register`;
-      console.log(`⚠️  Registering user at: ${registerUrl}`);
       await request(app.getHttpServer())
         .post(registerUrl)
         .send(inputRegisterUser)
@@ -68,7 +63,6 @@ describe('Authentication Controller (e2e)', () => {
     });
     it('should return 409 if user already exists', async () => {
       const registerUrl = `${endPoint}/register`;
-      console.log(`⚠️ Registering user at: ${registerUrl}`);
       await request(app.getHttpServer())
         .post(registerUrl)
         .send(inputRegisterUser)
@@ -77,7 +71,6 @@ describe('Authentication Controller (e2e)', () => {
           expect(response.body.token).toBeDefined();
         });
       const register2Url = `${endPoint}/register`;
-      console.log(`Registering user at: ${register2Url}`);
       await request(app.getHttpServer()).post(register2Url).send(inputRegisterUser).expect(409);
     });
   });
@@ -85,10 +78,8 @@ describe('Authentication Controller (e2e)', () => {
   describe('Login user', () => {
     beforeEach(async () => {
       await request(app.getHttpServer()).delete(`${endPoint}/admin/${inputLoginUser.email}`).expect(200);
-
       await request(app.getHttpServer()).post(`${endPoint}/register`).send(inputRegisterUser).expect(201);
     });
-
     it('should return 200 and a token if credentials are valid', async () => {
       await request(app.getHttpServer())
         .post(`${endPoint}/login`)
@@ -100,11 +91,9 @@ describe('Authentication Controller (e2e)', () => {
           expect(response.body.user.email).toBe(inputLoginUser.email);
         });
     });
-
     it('should return 401 if email is not registered', async () => {
       await request(app.getHttpServer()).post(`${endPoint}/login`).send(invalidLoginEmail).expect(401);
     });
-
     it('should return 401 if password is incorrect', async () => {
       await request(app.getHttpServer()).post(`${endPoint}/login`).send(invalidLoginPassword).expect(401);
     });
@@ -113,7 +102,6 @@ describe('Authentication Controller (e2e)', () => {
   describe('Validate token', () => {
     beforeEach(async () => {
       await request(app.getHttpServer()).delete(`${endPoint}/admin/${inputLoginUser.email}`).expect(200);
-
       await request(app.getHttpServer()).post(`${endPoint}/register`).send(inputRegisterUser).expect(201);
     });
     it('should return 200 and a token if credentials are valid', async () => {
