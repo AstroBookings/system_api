@@ -8,22 +8,22 @@ describe('Authentication Controller (e2e)', () => {
   let app: INestApplication;
   let endPoint: string = '/authentication';
   const inputRegisterUser = {
-    name: 'John Doe',
-    email: 'john.doe@test.dev',
-    password: 'Password@123',
+    name: 'Test User',
+    email: 'test.user@test.dev',
+    password: 'Password@0',
     role: 'traveler',
   };
   const inputLoginUser: LoginDto = {
-    email: 'john.doe@test.dev',
-    password: 'Password@123',
+    email: 'test.user@test.dev',
+    password: 'Password@0',
   };
   const invalidLoginEmail: LoginDto = {
     email: 'non.existent@test.dev',
-    password: 'Password@123',
+    password: 'Password@0',
   };
   const invalidLoginPassword: LoginDto = {
     email: inputLoginUser.email,
-    password: 'WrongPassword@123',
+    password: 'WrongPassword@0',
   };
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
