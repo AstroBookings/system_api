@@ -1,5 +1,4 @@
 import { Entity, PrimaryKey, Property, SerializedPrimaryKey } from '@mikro-orm/core';
-import { Role } from '../models/role.type';
 
 /**
  * User entity
@@ -31,7 +30,7 @@ export class UserEntity {
   passwordHash: string;
 
   @Property({ type: 'text' })
-  role: Role;
+  role: string;
 }
 
 /**
