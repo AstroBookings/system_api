@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AdminModule } from '../admin/admin.module';
 import { AdminController } from './admin/admin.controller';
 import { AuthenticationController } from './authentication.controller';
 import { AuthenticationServicesModule } from './services/authentication-services.module';
@@ -7,7 +8,7 @@ import { AuthenticationServicesModule } from './services/authentication-services
  * Module for authentication-related functionality.
  */
 @Module({
-  imports: [AuthenticationServicesModule],
+  imports: [AuthenticationServicesModule, AdminModule],
   controllers: [AuthenticationController, AdminController],
 })
 export class AuthenticationModule {}

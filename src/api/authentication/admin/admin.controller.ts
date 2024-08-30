@@ -7,7 +7,7 @@ import { AuthenticationService } from '../services/authentication.service';
  * @description Intended to be used only for testing purposes.
  * @warning Should be protected by an API key.
  */
-@Controller('authentication/admin')
+@Controller('api/authentication/admin')
 export class AdminController {
   readonly #logger = new Logger(AdminController.name);
 

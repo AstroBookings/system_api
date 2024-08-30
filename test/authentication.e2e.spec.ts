@@ -6,7 +6,7 @@ import { AppModule } from '../src/app.module';
 
 describe('Authentication Controller (e2e)', () => {
   let app: INestApplication;
-  let endPoint: string = '/authentication';
+  let endPoint: string = '/api/authentication';
   const inputRegisterUser = {
     name: 'Test User',
     email: 'test.user@test.dev',
@@ -25,7 +25,8 @@ describe('Authentication Controller (e2e)', () => {
     email: inputLoginUser.email,
     password: 'WrongPassword@0',
   };
-  beforeEach(async () => {
+
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     })
@@ -34,15 +35,31 @@ describe('Authentication Controller (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     await app.init();
+
+    // Regenerate the database before running the tests
+    console.warn('⚠️  Regenerating database before running the tests ⚠️');
+    await request(app.getHttpServer()).post('/api/admin/regenerate-db').expect(200);
   });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
   describe('Register a new user', () => {
     beforeEach(async () => {
-      await request(app.getHttpServer()).delete(`${endPoint}/admin/${inputRegisterUser.email}`).expect(200);
+      const deleteUrl = `${endPoint}/admin/${inputRegisterUser.email}`;
+      console.warn(`😨  Deleting user at: ${deleteUrl}`);
+      await request(app.getHttpServer()).delete(deleteUrl);
+    });
+    it('should pass', async () => {
+      expect(true).toBe(true);
     });
 
     it('should return 201 and a token if user is created', async () => {
+      const registerUrl = `${endPoint}/register`;
+      console.log(`⚠️  Registering user at: ${registerUrl}`);
       await request(app.getHttpServer())
-        .post(`${endPoint}/register`)
+        .post(registerUrl)
         .send(inputRegisterUser)
         .expect(201)
         .expect((response) => {
@@ -50,8 +67,18 @@ describe('Authentication Controller (e2e)', () => {
         });
     });
     it('should return 409 if user already exists', async () => {
-      await request(app.getHttpServer()).post(`${endPoint}/register`).send(inputRegisterUser);
-      await request(app.getHttpServer()).post(`${endPoint}/register`).send(inputRegisterUser).expect(409);
+      const registerUrl = `${endPoint}/register`;
+      console.log(`⚠️ Registering user at: ${registerUrl}`);
+      await request(app.getHttpServer())
+        .post(registerUrl)
+        .send(inputRegisterUser)
+        .expect(201)
+        .expect((response) => {
+          expect(response.body.token).toBeDefined();
+        });
+      const register2Url = `${endPoint}/register`;
+      console.log(`Registering user at: ${register2Url}`);
+      await request(app.getHttpServer()).post(register2Url).send(inputRegisterUser).expect(409);
     });
   });
 

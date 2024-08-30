@@ -9,6 +9,7 @@ export class AdminService {
   async clearDatabase() {
     await this.em.getConnection().dropCollection('users');
     await this.em.getConnection().dropCollection('entry_log');
+    await this.em.getConnection().dropCollection('notifications');
     await this.em.getConnection().dropCollection('job_queue');
     return { message: 'Database cleared' };
   }
@@ -23,10 +24,6 @@ export class AdminService {
     this.em.getConnection().createCollection('job_queue');
     this.em.getCollection('job_queue').createIndex({ id: 1 }, { unique: true });
     this.em.getCollection('job_queue').createIndex({ status: 1 });
-
-    /* const generator = this.em.getMetadata().getGenerator();
-    await generator.ensureDatabase();
-    await generator.updateSchema(); */
     return { message: 'Collections created' };
   }
 
