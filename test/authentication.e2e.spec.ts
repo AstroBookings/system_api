@@ -1,9 +1,8 @@
 import { INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { AppModule } from '@src/app.module';
 import { LoginDto } from 'src/api/authentication/models/login.dto';
 import * as request from 'supertest';
-import { AppModule } from '../src/app.module';
-
 describe('Authentication Controller (e2e)', () => {
   let app: INestApplication;
   let endPoint: string = '/api/authentication';

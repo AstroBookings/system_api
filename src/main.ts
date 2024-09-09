@@ -1,7 +1,7 @@
+import { AllExceptionsFilter } from '@core/all-exceptions.filter';
 import { LogLevel, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { AllExceptionsFilter } from './middleware/all-exceptions.filter';
 
 const nodeEnv = process.env.NODE_ENV;
 const loggerLevel: LogLevel[] =

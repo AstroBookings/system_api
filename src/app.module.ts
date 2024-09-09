@@ -4,7 +4,7 @@ import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AdminModule } from './api/admin/admin.module';
 import { AuthenticationModule } from './api/authentication/authentication.module';
 import { UserEntity } from './api/authentication/services/user.entity';
-import { LoggerMiddleware } from './middleware/logger.middleware';
+import { LoggerMiddleware } from './core/logger.middleware';
 
 // Configuration for MongoDB Database
 const mikroOrmConfig = {
