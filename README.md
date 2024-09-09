@@ -12,6 +12,8 @@
 
 ## 🧑‍💼 System API
 
+> [Repository](https://github.com/AstroBookings/system_api)
+
 Central API for authentication, authorization, and system-wide operations. It manages user sessions, handles access control, and provides interfaces for system monitoring and management.
 
 Developed using NestJS with TypeScript for robust type checking, maintainability, and scalable architecture.
