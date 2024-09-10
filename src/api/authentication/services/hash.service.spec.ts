@@ -43,14 +43,15 @@ describe('HashService', () => {
       // Arrange
       const inputText1 = mockPlainText;
       const inputText2 = 'differentpassword';
-      mockCrypto.createHash.mockReturnValueOnce({
-        update: jest.fn().mockReturnThis(),
-        digest: jest.fn().mockReturnValue('hash1'),
-      } as any);
-      mockCrypto.createHash.mockReturnValueOnce({
-        update: jest.fn().mockReturnThis(),
-        digest: jest.fn().mockReturnValue('hash2'),
-      } as any);
+      mockCrypto.createHash
+        .mockReturnValueOnce({
+          update: jest.fn().mockReturnThis(),
+          digest: jest.fn().mockReturnValue('hash1'),
+        } as any)
+        .mockReturnValueOnce({
+          update: jest.fn().mockReturnThis(),
+          digest: jest.fn().mockReturnValue('hash2'),
+        } as any);
 
       // Act
       const hash1: string = hashService.hashText(inputText1);

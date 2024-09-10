@@ -1,7 +1,7 @@
 import { EntityRepository } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { ConflictException, Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { IdService } from '../../../shared/id.service';
+import { IdService } from '@shared/id.service';
 import { LoginDto } from '../models/login.dto';
 import { RegisterDto } from '../models/register.dto';
 import { TokenPayload, UserToken } from '../models/user-token.type';
