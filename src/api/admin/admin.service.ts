@@ -4,30 +4,64 @@ import * as crypto from 'crypto';
 
 @Injectable()
 export class AdminService {
+  private readonly usersCollection = 'users';
+  private readonly logEntriesCollection = 'log_entries';
+  private readonly jobQueueCollection = 'job_queue';
+
   constructor(private readonly em: EntityManager) {}
 
   async clearDatabase() {
-    await this.em.getConnection().dropCollection('users');
-    await this.em.getConnection().dropCollection('entry_log');
-    await this.em.getConnection().dropCollection('notifications');
-    await this.em.getConnection().dropCollection('job_queue');
+    await this.clearUsers();
+    await this.clearLogEntries();
+    await this.clearJobQueue();
     return { message: 'Database cleared' };
   }
 
   async createCollections() {
-    this.em.getConnection().createCollection('users');
-    this.em.getCollection('users').createIndex({ id: 1 }, { unique: true });
-    this.em.getCollection('users').createIndex({ email: 1 }, { unique: true });
-    this.em.getConnection().createCollection('entry_log');
-    this.em.getCollection('entry_log').createIndex({ id: 1 }, { unique: true });
-    this.em.getCollection('entry_log').createIndex({ level: 1 });
-    this.em.getConnection().createCollection('job_queue');
-    this.em.getCollection('job_queue').createIndex({ id: 1 }, { unique: true });
-    this.em.getCollection('job_queue').createIndex({ status: 1 });
+    await this.createUsersCollection();
+    await this.createLogEntriesCollection();
+    await this.createJobQueueCollection();
     return { message: 'Collections created' };
   }
 
   async seedDatabase() {
+    await this.seedUsers();
+    await this.seedLogEntries();
+    await this.seedJobQueue();
+    return { message: 'Database seeded' };
+  }
+
+  private async clearUsers() {
+    await this.em.getConnection().dropCollection(this.usersCollection);
+  }
+
+  private async clearLogEntries() {
+    await this.em.getConnection().dropCollection(this.logEntriesCollection);
+  }
+
+  private async clearJobQueue() {
+    await this.em.getConnection().dropCollection(this.jobQueueCollection);
+  }
+
+  private async createUsersCollection() {
+    await this.em.getConnection().createCollection(this.usersCollection);
+    await this.em.getCollection(this.usersCollection).createIndex({ id: 1 }, { unique: true });
+    await this.em.getCollection(this.usersCollection).createIndex({ email: 1 }, { unique: true });
+  }
+
+  private async createLogEntriesCollection() {
+    await this.em.getConnection().createCollection(this.logEntriesCollection);
+    await this.em.getCollection(this.logEntriesCollection).createIndex({ id: 1 }, { unique: true });
+    await this.em.getCollection(this.logEntriesCollection).createIndex({ level: 1 });
+  }
+
+  private async createJobQueueCollection() {
+    await this.em.getConnection().createCollection(this.jobQueueCollection);
+    await this.em.getCollection(this.jobQueueCollection).createIndex({ id: 1 }, { unique: true });
+    await this.em.getCollection(this.jobQueueCollection).createIndex({ status: 1 });
+  }
+
+  private async seedUsers() {
     const users = [
       {
         id: 'usr_t1',
@@ -58,9 +92,11 @@ export class AdminService {
         role: 'agency',
       },
     ];
-    await this.em.getCollection('users').insertMany(users);
+    await this.em.getCollection(this.usersCollection).insertMany(users);
+  }
 
-    const entryLogs = [
+  private async seedLogEntries() {
+    const logEntries = [
       {
         id: 'log_1',
         entityType: 'booking',
@@ -82,10 +118,11 @@ export class AdminService {
         data: JSON.stringify({ launchId: 'lnch_3' }),
       },
     ];
+    await this.em.getCollection(this.logEntriesCollection).insertMany(logEntries);
+  }
 
-    await this.em.getCollection('entry_log').insertMany(entryLogs);
-
-    const jobQueues = [
+  private async seedJobQueue() {
+    const jobQueue = [
       {
         id: 'job_1',
         job_type: 'send_notification',
@@ -106,10 +143,7 @@ export class AdminService {
         data: { launchId: 'lnch_3' },
       },
     ];
-
-    await this.em.getCollection('job_queue').insertMany(jobQueues);
-
-    return { message: 'Database seeded' };
+    await this.em.getCollection(this.jobQueueCollection).insertMany(jobQueue);
   }
 
   private hashText(text: string): string {

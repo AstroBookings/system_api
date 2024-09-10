@@ -16,6 +16,7 @@ export class AuthenticationController {
   constructor(private readonly authenticationService: AuthenticationService) {
     this.#logger.debug('🚀  initialized');
   }
+
   @Get('ping')
   async ping() {
     return 'pong';
