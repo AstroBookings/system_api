@@ -16,9 +16,9 @@ export class AuthenticationController {
   constructor(private readonly authenticationService: AuthenticationService) {
     this.#logger.debug('🚀  initialized');
   }
-  @Get('test')
-  async test() {
-    return '🚀 Authentication API is running!';
+  @Get('ping')
+  async ping() {
+    return 'pong';
   }
   /**
    * Registers a new user.

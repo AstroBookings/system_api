@@ -1,6 +1,11 @@
 import { Controller, HttpCode, Logger, Post } from '@nestjs/common';
 import { AdminService } from './admin.service';
-
+/**
+ * Admin controller
+ * @description Endpoints for setting up the database for testing purposes
+ * @requires AdminService for database management
+ * @warning Should be protected by an API key.
+ */
 @Controller('api/admin')
 export class AdminController {
   readonly #logger = new Logger(AdminController.name);

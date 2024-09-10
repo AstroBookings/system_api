@@ -3,21 +3,21 @@ import { AuthenticationService } from '@api/authentication/services/authenticati
 import { Controller, Delete, Get, Logger, Param } from '@nestjs/common';
 
 /**
- * Auxiliary controller for the authentication module.
- * @description Intended to be used only for testing purposes.
- * @warning Should be protected by an API key.
+ * Admin controller for the authentication module.
+ * @description Intended to be used only for testing and administrative purposes.
+ * @warning Should be protected by an API key or admin-only access.
  */
-@Controller('api/authentication/aux')
-export class ArrangeController {
-  readonly #logger = new Logger(ArrangeController.name);
+@Controller('api/authentication/admin')
+export class AdminController {
+  readonly #logger = new Logger(AdminController.name);
 
   constructor(private readonly authenticationService: AuthenticationService) {
     this.#logger.debug('🚀  initialized');
   }
 
-  @Get('test')
+  @Get('ping')
   async test() {
-    return 'test';
+    return 'pong';
   }
 
   /**
