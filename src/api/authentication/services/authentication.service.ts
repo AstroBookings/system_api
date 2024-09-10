@@ -29,7 +29,7 @@ export class AuthenticationService {
     private readonly hashService: HashService,
     private readonly idService: IdService,
   ) {
-    this.#logger.debug('🚀  initialized');
+    this.#logger.verbose('🚀  initialized');
   }
 
   async register(registerDto: RegisterDto): Promise<UserToken> {
@@ -37,7 +37,7 @@ export class AuthenticationService {
       email: registerDto.email,
     });
     if (existingUser) {
-      this.#logger.log('👽 Email already in use', registerDto.email);
+      this.#logger.debug('👽 Email already in use', registerDto.email);
       throw new ConflictException('Email already in use');
     }
     const userEntityData: UserEntityData = {
@@ -62,11 +62,11 @@ export class AuthenticationService {
       email: loginDto.email,
     });
     if (!userEntity) {
-      this.#logger.log('👽 Invalid credentials email', loginDto.email);
+      this.#logger.debug('👽 Invalid credentials email', loginDto.email);
       throw new UnauthorizedException('Invalid credentials');
     }
     if (!this.hashService.isValid(loginDto.password, userEntity.passwordHash)) {
-      this.#logger.log('👽 Invalid credentials password', loginDto.email);
+      this.#logger.debug('👽 Invalid credentials password', loginDto.email);
       throw new UnauthorizedException('Invalid credentials');
     }
     return this.#generateUserToken(userEntity);
@@ -81,7 +81,7 @@ export class AuthenticationService {
     const tokenPayload: TokenPayload = this.tokenService.validateToken(token);
     const user = await this.getById(tokenPayload.sub);
     if (!user) {
-      this.#logger.log('👽 Invalid User for token', token);
+      this.#logger.debug('👽 Invalid User for token', token);
       throw new UnauthorizedException('User not found');
     }
     return { user, token, exp: tokenPayload.exp };
@@ -96,7 +96,7 @@ export class AuthenticationService {
   async getById(id: string): Promise<User | null> {
     const userEntity = await this.userRepository.findOne({ id: id });
     if (!userEntity) {
-      this.#logger.log('👽 User not found', id);
+      this.#logger.debug('👽 User not found', id);
       throw new NotFoundException(`User with ID ${id} not found`);
     }
     return this.#mapToDto(userEntity);
@@ -110,11 +110,11 @@ export class AuthenticationService {
   async deleteById(id: string): Promise<void> {
     const userEntity = await this.userRepository.findOne({ id: id });
     if (!userEntity) {
-      this.#logger.log(`👽 Not found user to delete with id: ${id}`);
+      this.#logger.debug(`👽 Not found user to delete with id: ${id}`);
       return;
     }
     await this.userRepository.nativeDelete(userEntity);
-    this.#logger.warn(`🧑‍🚀 User with ID ${id} has been deleted`);
+    this.#logger.verbose(`🤖 User with ID ${id} has been deleted`);
   }
 
   /**
@@ -125,11 +125,11 @@ export class AuthenticationService {
   async deleteUserByEmail(email: string): Promise<void> {
     const userEntity = await this.userRepository.findOne({ email });
     if (!userEntity) {
-      this.#logger.log(`👽 Not found user to delete with email: ${email}`);
+      this.#logger.debug(`👽 Not found user to delete with email: ${email}`);
       return;
     }
     await this.userRepository.nativeDelete({ email });
-    this.#logger.warn(`🧑‍🚀 User with email ${email} has been deleted`);
+    this.#logger.verbose(`🤖 User with email ${email} has been deleted`);
   }
 
   #mapToDto(user: UserEntityData): User {

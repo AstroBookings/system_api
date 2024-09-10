@@ -14,7 +14,7 @@ export class AuthenticationController {
   readonly #logger = new Logger(AuthenticationController.name);
 
   constructor(private readonly authenticationService: AuthenticationService) {
-    this.#logger.debug('🚀  initialized');
+    this.#logger.verbose('🚀  initialized');
   }
 
   @Get('ping')
@@ -28,7 +28,7 @@ export class AuthenticationController {
    */
   @Post('register')
   async register(@Body() registerDto: RegisterDto): Promise<UserToken> {
-    this.#logger.log(`🤖 Registering user: ${registerDto.email}`);
+    this.#logger.verbose(`🤖 Registering user: ${registerDto.email}`);
     return this.authenticationService.register(registerDto);
   }
 
@@ -40,13 +40,13 @@ export class AuthenticationController {
   @Post('login')
   @HttpCode(200)
   async login(@Body() loginDto: LoginDto): Promise<UserToken> {
-    this.#logger.log(`🤖 Logging in user: ${loginDto.email}`);
+    this.#logger.verbose(`🤖 Logging in user: ${loginDto.email}`);
     return this.authenticationService.login(loginDto);
   }
 
   @Get('validate/:token')
   async validate(@Param('token') token: string): Promise<UserToken> {
-    this.#logger.log(`🤖 Validating token: ${token}`);
+    this.#logger.verbose(`🤖 Validating token: ${token}`);
     return this.authenticationService.validate(token);
   }
 }

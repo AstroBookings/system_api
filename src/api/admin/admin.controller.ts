@@ -9,7 +9,9 @@ import { AdminService } from './admin.service';
 @Controller('api/admin')
 export class AdminController {
   readonly #logger = new Logger(AdminController.name);
-  constructor(private readonly adminService: AdminService) {}
+  constructor(private readonly adminService: AdminService) {
+    this.#logger.verbose('🚀  initialized');
+  }
 
   /**
    * Regenerates the database
@@ -18,7 +20,7 @@ export class AdminController {
   @Post('regenerate-db')
   @HttpCode(200)
   async regenerateDatabase(): Promise<{ status: string; message: string }> {
-    this.#logger.log('🧑‍🚀 Regenerating database');
+    this.#logger.verbose('🤖 Regenerating database');
     await this.adminService.clearDatabase();
     await this.adminService.createCollections();
     await this.adminService.seedDatabase();
@@ -27,19 +29,19 @@ export class AdminController {
 
   @Post('clear')
   async clearDatabase() {
-    this.#logger.log('🧑‍🚀 Clearing database');
+    this.#logger.verbose('🤖 Clearing database');
     return this.adminService.clearDatabase();
   }
 
   @Post('create')
   async createCollections() {
-    this.#logger.log('🧑‍🚀 Creating collections');
+    this.#logger.verbose('🤖 Creating collections');
     return this.adminService.createCollections();
   }
 
   @Post('seed')
   async seedDatabase() {
-    this.#logger.log('🧑‍🚀 Seeding database');
+    this.#logger.verbose('🤖 Seeding database');
     return this.adminService.seedDatabase();
   }
 }

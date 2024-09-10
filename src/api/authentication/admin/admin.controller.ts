@@ -12,7 +12,7 @@ export class AdminController {
   readonly #logger = new Logger(AdminController.name);
 
   constructor(private readonly authenticationService: AuthenticationService) {
-    this.#logger.debug('🚀  initialized');
+    this.#logger.verbose('🚀  initialized');
   }
 
   @Get('ping')
