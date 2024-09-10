@@ -1,7 +1,7 @@
 import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
 
 @Entity({ collection: 'job_queue' })
-export class JobQueueEntity {
+export class JobEntity {
   @PrimaryKey()
   id!: string;
 

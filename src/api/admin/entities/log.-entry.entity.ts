@@ -1,7 +1,7 @@
 import { Entity, PrimaryKey, Property } from '@mikro-orm/core';
 
-@Entity({ collection: 'entry_log' })
-export class EntryLogEntity {
+@Entity({ collection: 'log_entries' })
+export class LogEntryEntity {
   @PrimaryKey()
   id!: string;
 

@@ -1,6 +1,8 @@
 import { EntityManager } from '@mikro-orm/mongodb';
 import { Injectable } from '@nestjs/common';
 import * as crypto from 'crypto';
+import { JobEntity } from './entities/job.entity';
+import { LogEntryEntity } from './entities/log.-entry.entity';
 
 @Injectable()
 export class AdminService {
@@ -96,7 +98,7 @@ export class AdminService {
   }
 
   private async seedLogEntries() {
-    const logEntries = [
+    const logEntries: LogEntryEntity[] = [
       {
         id: 'log_1',
         entityType: 'booking',
@@ -122,7 +124,7 @@ export class AdminService {
   }
 
   private async seedJobQueue() {
-    const jobQueue = [
+    const jobQueue: JobEntity[] = [
       {
         id: 'job_1',
         job_type: 'send_notification',
