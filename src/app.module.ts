@@ -1,22 +1,12 @@
-import { MongoDriver } from '@mikro-orm/mongodb';
+import { MONGO_CONFIG } from '@core/config/mikro-orm.mongo.config';
 import { MikroOrmModule } from '@mikro-orm/nestjs';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AdminModule } from './api/admin/admin.module';
 import { AuthenticationModule } from './api/authentication/authentication.module';
-import { UserEntity } from './api/authentication/services/user.entity';
 import { LoggerMiddleware } from './core/logger.middleware';
 
-// Configuration for MongoDB Database
-const mikroOrmConfig = {
-  driver: MongoDriver,
-  clientUrl: 'mongodb://localhost:27017',
-  dbName: 'SystemDB',
-  entities: [UserEntity],
-  debug: false,
-};
-
 @Module({
-  imports: [MikroOrmModule.forRoot(mikroOrmConfig), AuthenticationModule, AdminModule],
+  imports: [MikroOrmModule.forRoot(MONGO_CONFIG), AuthenticationModule, AdminModule],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
