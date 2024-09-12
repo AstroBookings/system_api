@@ -10,10 +10,10 @@ export function hashText(text: string): string {
 }
 
 /**
- * Compares a plain text with a hashed text.
- * @param text - The plain text.
- * @param hash - The hashed text.
- * @returns true if the texts match, false otherwise.
+ * Compares a plain text with a hashed value.
+ * @param text - The plain text to hash and compare.
+ * @param hash - The hashed value to compare against.
+ * @returns true if the text once hashed matches the hash, false otherwise.
  */
 export function isValid(text: string, hash: string): boolean {
   const hashedText = hashText(text);
