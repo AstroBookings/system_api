@@ -2,11 +2,11 @@ import { EntityRepository } from '@mikro-orm/core';
 import { InjectRepository } from '@mikro-orm/nestjs';
 import { ConflictException, Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { IdService } from '@shared/id.service';
+import { hashText, isValid } from '@shared/utils/hash.util';
 import { LoginDto } from '../models/login.dto';
 import { RegisterDto } from '../models/register.dto';
 import { TokenPayload, UserToken } from '../models/user-token.type';
 import { User } from '../models/user.type';
-import { HashService } from './hash.service';
 import { TokenService } from './token.service';
 import { UserEntity, UserEntityData } from './user.entity';
 
@@ -24,9 +24,8 @@ export class AuthenticationService {
 
   constructor(
     @InjectRepository(UserEntity)
-    private readonly userRepository: EntityRepository<UserEntity>,
+    private readonly userRepository: EntityRepository<UserEntityData>,
     private readonly tokenService: TokenService,
-    private readonly hashService: HashService,
     private readonly idService: IdService,
   ) {
     this.#logger.verbose('🚀  initialized');
@@ -43,7 +42,7 @@ export class AuthenticationService {
     const userEntityData: UserEntityData = {
       id: this.idService.generateId(),
       email: registerDto.email,
-      passwordHash: this.hashService.hashText(registerDto.password),
+      passwordHash: hashText(registerDto.password),
       name: registerDto.name,
       role: registerDto.role,
     };
@@ -65,7 +64,7 @@ export class AuthenticationService {
       this.#logger.debug('👽 Invalid credentials email', loginDto.email);
       throw new UnauthorizedException('Invalid credentials');
     }
-    if (!this.hashService.isValid(loginDto.password, userEntity.passwordHash)) {
+    if (!isValid(loginDto.password, userEntity.passwordHash)) {
       this.#logger.debug('👽 Invalid credentials password', loginDto.email);
       throw new UnauthorizedException('Invalid credentials');
     }

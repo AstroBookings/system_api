@@ -3,19 +3,20 @@ import { getRepositoryToken } from '@mikro-orm/nestjs';
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { IdService } from '@shared/id.service';
+import * as hashUtils from '@shared/utils/hash.util';
 import { LoginDto } from '../models/login.dto';
 import { RegisterDto } from '../models/register.dto';
 import { TokenPayload, UserToken } from '../models/user-token.type';
 import { AuthenticationService } from './authentication.service';
-import { HashService } from './hash.service';
 import { TokenService } from './token.service';
 import { UserEntity, UserEntityData } from './user.entity';
+
+jest.mock('@shared/utils/hash.util');
 
 describe('AuthenticationService', () => {
   let service: AuthenticationService;
   let mockUserRepository: Partial<jest.Mocked<EntityRepository<UserEntityData>>>;
   let mockTokenService: Partial<jest.Mocked<TokenService>>;
-  let mockHashService: Partial<jest.Mocked<HashService>>;
   let mockIdService: Partial<jest.Mocked<IdService>>;
   const mockId: string = '1';
   const mockHashedPassword: string = 'hashed_password';
@@ -59,13 +60,14 @@ describe('AuthenticationService', () => {
       validateToken: jest.fn(),
       decodeToken: jest.fn(),
     };
-    mockHashService = {
-      hashText: jest.fn(),
-      isValid: jest.fn(),
-    };
+
     mockIdService = {
       generateId: jest.fn(),
     };
+
+    // Mock the hash functions
+    (hashUtils.hashText as jest.Mock).mockReturnValue(mockHashedPassword);
+    (hashUtils.isValid as jest.Mock).mockReturnValue(true);
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -76,10 +78,6 @@ describe('AuthenticationService', () => {
         {
           provide: TokenService,
           useValue: mockTokenService,
-        },
-        {
-          provide: HashService,
-          useValue: mockHashService,
         },
         {
           provide: IdService,
@@ -94,7 +92,7 @@ describe('AuthenticationService', () => {
 
   describe('register', () => {
     it('should register a user', async () => {
-      // Arrange
+      // Arrange: Set up expected result and mock repository behavior
       const expected_result: UserToken = {
         user: {
           id: mockId,
@@ -107,28 +105,29 @@ describe('AuthenticationService', () => {
       };
 
       mockUserRepository.findOne.mockResolvedValue(null);
-      mockHashService.hashText.mockReturnValue(mockHashedPassword);
+      (hashUtils.hashText as jest.Mock).mockReturnValue(mockHashedPassword);
       mockIdService.generateId.mockReturnValue(mockId);
       mockTokenService.generateToken.mockReturnValue(mockToken);
       mockTokenService.decodeToken.mockReturnValue(mockTokenPayload);
 
-      // Act
+      // Act: Call the register method
       const actual_result: UserToken = await service.register(inputValidRegisterDto);
 
-      // Assert
+      // Assert: Verify interactions and results
       expect(mockUserRepository.findOne).toHaveBeenCalledWith({
         email: inputValidRegisterDto.email,
       });
       expect(mockUserRepository.insert).toHaveBeenCalled();
       expect(mockTokenService.generateToken).toHaveBeenCalledWith(mockId);
       expect(actual_result).toEqual(expected_result);
+      expect(hashUtils.hashText).toHaveBeenCalledWith(inputValidRegisterDto.password);
     });
 
     it('should throw Exception if user already exists', async () => {
-      // Arrange
+      // Arrange: Mock existing user scenario
       mockUserRepository.findOne.mockResolvedValue(mockUserEntity);
 
-      // Act & Assert
+      // Act & Assert: Expect ConflictException to be thrown
       await expect(service.register(inputValidRegisterDto)).rejects.toThrow(ConflictException);
       expect(mockUserRepository.findOne).toHaveBeenCalledWith({
         email: inputValidRegisterDto.email,
@@ -138,7 +137,7 @@ describe('AuthenticationService', () => {
 
   describe('login', () => {
     it('should log in a user with correct credentials', async () => {
-      // Arrange
+      // Arrange: Set up expected result and mock repository behavior
       const expected_result: UserToken = {
         user: {
           id: mockUserEntity.id,
@@ -151,41 +150,40 @@ describe('AuthenticationService', () => {
       };
 
       mockUserRepository.findOne.mockResolvedValue(mockUserEntity);
-      mockHashService.isValid.mockReturnValue(true);
+      (hashUtils.isValid as jest.Mock).mockReturnValue(true);
       mockTokenService.generateToken.mockReturnValue(mockToken);
       mockTokenService.decodeToken.mockReturnValue(mockTokenPayload);
 
-      // Act
+      // Act: Call the login method
       const actual_result: UserToken = await service.login(inputValidLoginDto);
 
-      // Assert
+      // Assert: Verify interactions and results
       expect(mockUserRepository.findOne).toHaveBeenCalledWith({
         email: inputValidLoginDto.email,
       });
-      expect(mockHashService.isValid).toHaveBeenCalledWith(inputValidLoginDto.password, mockUserEntity.passwordHash);
+      expect(hashUtils.isValid).toHaveBeenCalledWith(inputValidLoginDto.password, mockUserEntity.passwordHash);
       expect(mockTokenService.generateToken).toHaveBeenCalledWith(mockUserEntity.id);
       expect(actual_result).toEqual(expected_result);
     });
 
     it('should throw UnauthorizedException for invalid credentials', async () => {
-      // Arrange
+      // Arrange: Mock user found but invalid password
       mockUserRepository.findOne.mockResolvedValue(mockUserEntity);
-      mockHashService.isValid.mockReturnValue(false);
+      (hashUtils.isValid as jest.Mock).mockReturnValue(false);
 
-      // Act & Assert
+      // Act & Assert: Expect UnauthorizedException to be thrown
       await expect(service.login(inputInvalidLoginDto)).rejects.toThrow(UnauthorizedException);
       expect(mockUserRepository.findOne).toHaveBeenCalledWith({
         email: inputInvalidLoginDto.email,
       });
-      expect(mockHashService.isValid).toHaveBeenCalledWith(inputInvalidLoginDto.password, mockUserEntity.passwordHash);
+      expect(hashUtils.isValid).toHaveBeenCalledWith(inputInvalidLoginDto.password, mockUserEntity.passwordHash);
     });
 
     it('should throw UnauthorizedException if user is not found', async () => {
-      // Arrange
-
+      // Arrange: Mock user not found scenario
       mockUserRepository.findOne.mockResolvedValue(null);
 
-      // Act & Assert
+      // Act & Assert: Expect UnauthorizedException to be thrown
       await expect(service.login(inputInvalidLoginDto)).rejects.toThrow(UnauthorizedException);
       expect(mockUserRepository.findOne).toHaveBeenCalledWith({
         email: inputInvalidLoginDto.email,
@@ -195,7 +193,7 @@ describe('AuthenticationService', () => {
 
   describe('validate', () => {
     it('should validate a token successfully', async () => {
-      // Arrange
+      // Arrange: Set up expected result and mock token validation
       const inputToken: string = mockToken;
       const expectedUserToken: UserToken = {
         user: {
@@ -211,23 +209,23 @@ describe('AuthenticationService', () => {
       mockTokenService.validateToken.mockReturnValue(mockTokenPayload);
       mockUserRepository.findOne.mockResolvedValue(mockUserEntity);
 
-      // Act
+      // Act: Call the validate method
       const actualUserToken: UserToken = await service.validate(inputToken);
 
-      // Assert
+      // Assert: Verify interactions and results
       expect(mockTokenService.validateToken).toHaveBeenCalledWith(inputToken);
       expect(actualUserToken).toEqual(expectedUserToken);
     });
 
     it('should throw UnauthorizedException if token is invalid', async () => {
-      // Arrange
+      // Arrange: Mock invalid token scenario
       const inputToken: string = mockToken;
 
       mockTokenService.validateToken = jest.fn().mockImplementation(() => {
         throw new UnauthorizedException('Invalid token');
       });
 
-      // Act & Assert
+      // Act & Assert: Expect UnauthorizedException to be thrown
       await expect(service.validate(inputToken)).rejects.toThrow(UnauthorizedException);
       expect(mockTokenService.validateToken).toHaveBeenCalledWith(inputToken);
     });
