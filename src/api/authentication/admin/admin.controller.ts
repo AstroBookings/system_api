@@ -27,7 +27,7 @@ export class AdminController {
    */
   @Get(':id')
   async getUser(@Param('id') id: string): Promise<User> {
-    this.#logger.log(`🤖 Getting user: ${id}`);
+    this.#logger.verbose(`🤖 Getting user: ${id}`);
     return this.authenticationService.getById(id);
   }
 
@@ -38,7 +38,7 @@ export class AdminController {
    */
   @Delete(':email')
   async deleteUser(@Param('email') email: string): Promise<void> {
-    this.#logger.log(`🤖 Deleting user: ${email}`);
+    this.#logger.verbose(`🤖 Deleting user: ${email}`);
     return this.authenticationService.deleteUserByEmail(email);
   }
 }
